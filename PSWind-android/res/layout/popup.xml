@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent"
+	android:layout_height="fill_parent"
+	android:stretchColumns="1,3"
+	android:background="@drawable/popup_frame">
+	<TextView android:id="@+id/sensorname"
+	/>
+	<com.lokico.PSWind.LoaderImageView
+		android:gravity="center_horizontal"
+		android:layout_height="wrap_content"
+		android:layout_width="wrap_content"
+		android:id="@+id/windGraph"
+  		image="http://windonthewater.com/wg.php?s=TTIW1"
+	/>
+</TableLayout>
