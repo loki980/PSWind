@@ -82,7 +82,6 @@ public class PSWind extends MapActivity {
 		
 		/* Get rid of the overlays */
 		map.getOverlays().clear();
-		map.invalidate();
 	}
 
 	@Override
