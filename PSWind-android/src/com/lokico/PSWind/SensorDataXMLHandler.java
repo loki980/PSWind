@@ -47,7 +47,7 @@ public class SensorDataXMLHandler extends DefaultHandler {
 		    */			
 			myParsedExampleDataSet.addSensorData(atts.getValue("id"),
 					atts.getValue("label"),
-					Float.parseFloat(atts.getValue("age")),
+					Integer.parseInt(atts.getValue("timestamp")),
 					Float.parseFloat(atts.getValue("lat")),
 					Float.parseFloat(atts.getValue("lng")),
 					Integer.parseInt(atts.getValue("wind")),

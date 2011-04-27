@@ -29,16 +29,15 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
-import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.OverlayItem;
 import com.lokico.PSWind.SensorDataSet.SensorData;
 
 public class PSWind extends MapActivity {
 	private MapView map = null;
-	private MyLocationOverlay me = null;
 	private long lastTouchTime = -1;
 	private final String MY_DEBUG_TAG = "WindFetcherFail";
-
+	private Drawable marker;
+	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -55,7 +54,7 @@ public class PSWind extends MapActivity {
 		 * Default marker for the wind sensor overlay. Will probably never be
 		 * used.
 		 */
-		Drawable marker = getResources().getDrawable(
+		marker = getResources().getDrawable(
 				R.drawable.sensormarker_ml_1);
 
 		/*
@@ -67,26 +66,23 @@ public class PSWind extends MapActivity {
 
 		/* Add the Wind Sensors overlay to our map */
 		map.getOverlays().add(new WindSensorsOverlay(marker));
-
-		/* Needed for the compass */
-		me = new MyLocationOverlay(this, map);
-		map.getOverlays().add(me);
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
 
-		me.enableCompass();
-		me.enableMyLocation();
+		/* Refresh the overlays */
+		map.getOverlays().add(new WindSensorsOverlay(marker));
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-
-		me.disableCompass();
-		me.disableMyLocation();
+		
+		/* Get rid of the overlays */
+		map.getOverlays().clear();
+		map.invalidate();
 	}
 
 	@Override
@@ -143,7 +139,7 @@ public class PSWind extends MapActivity {
 			try {
 				/* Create a URL we want to load some xml-data from. */
 				URL url = new URL(
-						"http://windonthewater.com/xx-xml-w5.php?s=wa");
+						"http://windonthewater.com/api/region_wind.php?v=1&r=nw&k=TEST");
 
 				/* Get a SAXParser from the SAXPArserFactory. */
 				SAXParserFactory spf = SAXParserFactory.newInstance();

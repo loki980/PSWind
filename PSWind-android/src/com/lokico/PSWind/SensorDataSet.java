@@ -22,16 +22,16 @@ public class SensorDataSet {
 		return sensorVector.size();
 	}
 
-	public void addSensorData(String id, String label, float age, float lat, float lon,
+	public void addSensorData(String id, String label, int timestamp, float lat, float lon,
 			int wind, int gust, int angle) {
-		sensorVector.addElement(new SensorData(id, label, age, lat, lon, wind, gust,
+		sensorVector.addElement(new SensorData(id, label, timestamp, lat, lon, wind, gust,
 				angle));
 	}
 
 	public class SensorData {
 		public String id = null;
 		public String label = null;
-		public float age = 0;
+		public int timestamp = 0;
 		public float lat = 0;
 		public float lon = 0;
 		public int wind = 0;
@@ -39,10 +39,10 @@ public class SensorDataSet {
 		public int angle = 0;
 		public String angleImg = null;
 
-		public SensorData(String id, String label, float age, float lat, float lon, int wind,
+		public SensorData(String id, String label, int timestamp, float lat, float lon, int wind,
 				int gust, int angle) {
 			this.id = id;
-			this.age = age;
+			this.timestamp = timestamp;
 			this.lat = lat;
 			this.lon = lon;
 			this.wind = wind;
