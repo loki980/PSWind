@@ -31,7 +31,7 @@ import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.OverlayItem;
-import com.lokico.PSWind.ParsedExampleDataSet.SensorData;
+import com.lokico.PSWind.SensorDataSet.SensorData;
 
 public class PSWind extends MapActivity {
 	private MapView map = null;
@@ -133,7 +133,7 @@ public class PSWind extends MapActivity {
 		private List<OverlayItem> items = new ArrayList<OverlayItem>();
 		private Drawable marker = null;
 		private PopupPanel panel = new PopupPanel(R.layout.popup);
-		private ParsedExampleDataSet parsedExampleDataSet;
+		private SensorDataSet mySensorDataSet;
 
 		public WindSensorsOverlay(Drawable marker) {
 			super(marker);
@@ -152,20 +152,20 @@ public class PSWind extends MapActivity {
 				/* Get the XMLReader of the SAXParser we created. */
 				XMLReader xr = sp.getXMLReader();
 				/* Create a new ContentHandler and apply it to the XML-Reader */
-				ExampleHandler myExampleHandler = new ExampleHandler();
-				xr.setContentHandler(myExampleHandler);
+				SensorDataXMLHandler mySensorDataXMLHandler = new SensorDataXMLHandler();
+				xr.setContentHandler(mySensorDataXMLHandler);
 
 				/* Parse the xml-data from our URL. */
 				xr.parse(new InputSource(url.openStream()));
 				/* Parsing has finished. */
 
 				/* Our ExampleHandler now provides the parsed data to us. */
-				parsedExampleDataSet = myExampleHandler.getParsedData();
+				mySensorDataSet = mySensorDataXMLHandler.getParsedData();
 				SensorData sd;
 				String arrowPath = "";
 
-				for (int i = 0; i < parsedExampleDataSet.getSensorDataSize(); i++) {
-					sd = parsedExampleDataSet.getSensorByIndex(i);
+				for (int i = 0; i < mySensorDataSet.getSensorDataSize(); i++) {
+					sd = mySensorDataSet.getSensorByIndex(i);
 					Integer resID = 0;
 
 					/* Combine the two icons that make the overlayitem's marker */

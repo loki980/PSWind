@@ -4,17 +4,17 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class ExampleHandler extends DefaultHandler {
+public class SensorDataXMLHandler extends DefaultHandler {
 
-	private ParsedExampleDataSet myParsedExampleDataSet = new ParsedExampleDataSet();
+	private SensorDataSet myParsedExampleDataSet = new SensorDataSet();
 
-	public ParsedExampleDataSet getParsedData() {
+	public SensorDataSet getParsedData() {
 		return this.myParsedExampleDataSet;
 	}
 
 	@Override
 	public void startDocument() throws SAXException {
-		this.myParsedExampleDataSet = new ParsedExampleDataSet();
+		this.myParsedExampleDataSet = new SensorDataSet();
 	}
 
 	@Override

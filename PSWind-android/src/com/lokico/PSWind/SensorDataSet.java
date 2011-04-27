@@ -2,7 +2,7 @@ package com.lokico.PSWind;
 
 import java.util.Vector;
 
-public class ParsedExampleDataSet {
+public class SensorDataSet {
 	private Vector<SensorData> sensorVector = new Vector<SensorData>();
 
 	public SensorData getSensorById(String id) {
