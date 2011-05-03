@@ -4,6 +4,9 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 
 import com.google.android.maps.GeoPoint;
@@ -41,11 +44,34 @@ public class PSWind extends MapActivity {
 	public void onResume() {
 		super.onResume();
 
+		queueUpdate();
+	}
+	
+	public void queueUpdate(){
 		Handler myHandler = new Handler();
 		// Delay loading the overlay by 1 ms to allow the map to display immediately.
 		myHandler.postDelayed(mMyRunnable, 100);
 	}
-
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+	    // Handle item selection
+	    switch (item.getItemId()) {
+		    case R.id.refresh:
+		    	queueUpdate();
+		        return true;
+		    default:
+		        return super.onOptionsItemSelected(item);
+	    }
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+	    MenuInflater inflater = getMenuInflater();
+	    inflater.inflate(R.menu.windsensor, menu);
+	    return true;
+	}
+	
 	@Override
 	public void onPause() {
 		super.onPause();
