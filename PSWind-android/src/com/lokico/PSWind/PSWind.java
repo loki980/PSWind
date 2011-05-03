@@ -2,6 +2,7 @@ package com.lokico.PSWind;
 
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 
@@ -26,19 +27,28 @@ public class PSWind extends MapActivity {
 		map.getController().setZoom(10);
 		map.setBuiltInZoomControls(true);
 	}
+	
+	//Here's a runnable/handler combo
+	private Runnable mMyRunnable = new Runnable()
+	{
+	    public void run()
+	    {
+			displayWind();
+	    }
+	 };
 
 	@Override
 	public void onResume() {
 		super.onResume();
 
-		displayWind();
+		Handler myHandler = new Handler();
+		// Delay loading the overlay by 1 ms to allow the map to display immediately.
+		myHandler.postDelayed(mMyRunnable, 100);
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-
-		System.out.println("invalidating...");
 	}
 
 	@Override
@@ -76,7 +86,10 @@ public class PSWind extends MapActivity {
 
 		/* Add the Wind Sensors overlay to our map */
 		System.out.println("new overlay incoming...");
-		map.getOverlays().add(new WindSensorsOverlay(PSWind.this, map, marker));
+		WindSensorsOverlay windSensorsOverlay = new WindSensorsOverlay(PSWind.this, map, marker);
+		map.getOverlays().clear();
+		map.getOverlays().add(windSensorsOverlay);
+		map.invalidate();
 	}
 	
 	private GeoPoint getPoint(double lat, double lon) {
@@ -100,8 +113,4 @@ public class PSWind extends MapActivity {
 
 		return super.dispatchTouchEvent(ev);
 	}
-
-
-
-
 }
