@@ -27,6 +27,7 @@ public class LoaderImageView extends LinearLayout {
 	private Drawable mDrawable;
 	private ProgressBar mSpinner;
 	private ImageView mImage;
+	private Boolean threadStarted = new Boolean("FALSE");
 
 	/**
 	 * This is used when creating the view in XML To have an image load in XML
@@ -96,21 +97,26 @@ public class LoaderImageView extends LinearLayout {
 	 *            the url of the image you wish to load
 	 */
 	public void setImageDrawable(final String imageUrl) {
-		mDrawable = null;
-		mSpinner.setVisibility(View.VISIBLE);
-		mImage.setVisibility(View.GONE);
-		new Thread() {
-			public void run() {
-				try {
-					mDrawable = getDrawableFromUrl(imageUrl);
-					imageLoadedHandler.sendEmptyMessage(COMPLETE);
-				} catch (MalformedURLException e) {
-					imageLoadedHandler.sendEmptyMessage(FAILED);
-				} catch (IOException e) {
-					imageLoadedHandler.sendEmptyMessage(FAILED);
-				}
-			};
-		}.start();
+		if(threadStarted == false) {
+			threadStarted = true;
+			
+			mDrawable = null;
+			mSpinner.setVisibility(View.VISIBLE);
+			mImage.setVisibility(View.GONE);
+		
+			new Thread() {
+				public void run() {
+					try {
+						mDrawable = getDrawableFromUrl(imageUrl);
+						imageLoadedHandler.sendEmptyMessage(COMPLETE);
+					} catch (MalformedURLException e) {
+						imageLoadedHandler.sendEmptyMessage(FAILED);
+					} catch (IOException e) {
+						imageLoadedHandler.sendEmptyMessage(FAILED);
+					}
+				};
+			}.start();
+		}
 	}
 
 	/**
@@ -130,6 +136,7 @@ public class LoaderImageView extends LinearLayout {
 				// otherwise will just keep on spinning
 				break;
 			}
+			threadStarted = false;
 			return true;
 		}
 	});

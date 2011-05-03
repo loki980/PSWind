@@ -49,39 +49,20 @@ public class PSWind extends MapActivity {
 		map.getController().setCenter(getPoint(47.7805, -122.3822));
 		map.getController().setZoom(10);
 		map.setBuiltInZoomControls(true);
-
-		/*
-		 * Default marker for the wind sensor overlay. Will probably never be
-		 * used.
-		 */
-		marker = getResources().getDrawable(
-				R.drawable.sensormarker_ml_1);
-
-		/*
-		 * Not sure what this does, but apparently things aren't drawn right if
-		 * it's not set this way
-		 */
-		marker.setBounds(0, 0, marker.getIntrinsicWidth(),
-				marker.getIntrinsicHeight());
-
-		/* Add the Wind Sensors overlay to our map */
-		map.getOverlays().add(new WindSensorsOverlay(marker));
 	}
 
 	@Override
 	public void onResume() {
 		super.onResume();
 
-		/* Refresh the overlays */
-		map.getOverlays().add(new WindSensorsOverlay(marker));
+		displayWind();
 	}
 
 	@Override
 	public void onPause() {
 		super.onPause();
-		
-		/* Get rid of the overlays */
-		map.getOverlays().clear();
+
+		System.out.println("invalidating...");
 	}
 
 	@Override
@@ -102,6 +83,26 @@ public class PSWind extends MapActivity {
 		return (super.onKeyDown(keyCode, event));
 	}
 
+	private void displayWind() {
+		/*
+		 * Default marker for the wind sensor overlay. Will probably never be
+		 * used.
+		 */
+		marker = getResources().getDrawable(
+				R.drawable.sensormarker_ml_1);
+
+		/*
+		 * Not sure what this does, but apparently things aren't drawn right if
+		 * it's not set this way
+		 */
+		marker.setBounds(0, 0, marker.getIntrinsicWidth(),
+				marker.getIntrinsicHeight());
+
+		/* Add the Wind Sensors overlay to our map */
+		System.out.println("new overlay incoming...");
+		map.getOverlays().add(new WindSensorsOverlay(marker));
+	}
+	
 	private GeoPoint getPoint(double lat, double lon) {
 		return (new GeoPoint((int) (lat * 1000000.0), (int) (lon * 1000000.0)));
 	}

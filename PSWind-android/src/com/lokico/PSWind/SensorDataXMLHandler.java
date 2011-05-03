@@ -31,20 +31,7 @@ public class SensorDataXMLHandler extends DefaultHandler {
 			String qName, Attributes atts) throws SAXException {
 
 		if (localName.equals("marker")) {
-			// Extract Attributes.  Here's an example:
-			/*  <marker id="CYVR"
-         		label="Vancouver International"
-         		age="58.2166666667"
-         		lat="49.1833"
-         		lng="-123.167"
-         		html=" Vancouver International 18:00 Elev: 3&lt;br&gt; Wind=14g20 WSW (Updated 58 min ago) " 
-         		tooltip="Vancouver_International&lt;br&gt;14g20@WSW"
-         		wind="14"
-         		gust="20"
-         		angle="67"
-         		timestamp="1303088400"
-         		notes="&lt;br&gt;&lt;br&gt;" />
-		    */			
+			// Extract Attributes
 			myParsedExampleDataSet.addSensorData(atts.getValue("id"),
 					atts.getValue("label"),
 					Integer.parseInt(atts.getValue("timestamp")),
