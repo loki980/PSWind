@@ -12,7 +12,6 @@ public class LoadMapItems extends AsyncTask<Integer, Integer, List<ItemizedOverl
 
 	@Override
 	protected List<ItemizedOverlay> doInBackground(Integer... params) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 //	private MapView map;
