@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -116,6 +117,7 @@ public class PSWind extends MapActivity {
 		map.getOverlays().clear();
 		map.getOverlays().add(windSensorsOverlay);
 		map.invalidate();
+		Toast.makeText(PSWind.this, "Sensor data refreshed", 1).show();
 	}
 	
 	private GeoPoint getPoint(double lat, double lon) {
