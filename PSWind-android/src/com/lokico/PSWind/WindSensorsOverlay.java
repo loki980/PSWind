@@ -74,7 +74,6 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 			Time theSensorTime = new Time();
 			currTime.setToNow();
 			twoHoursAgoInSec = currTime.toMillis(true) / 1000 - (60*60*2);
-			Integer numOmitted = 0;
 			
 			for (int i = 0; i < mySensorDataSet.getSensorDataSize(); i++) {
 				sd = mySensorDataSet.getSensorByIndex(i);		
@@ -85,7 +84,6 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 				Long minutesAgo = (twoHoursAgoInSec + (60*60*2) - sd.timestamp) / 60;
 				if(minutesAgo > 60*24*2) {
 					/* If the sensor hasn't been updated in 2 days, remove it from the overlay */
-					System.out.printf("%d omitted\r\n", ++numOmitted);
 					continue;
 				} else if (minutesAgo > 180) {
 					/* If the sensor hasn't been updated in 3 hours, mark it as stale */
@@ -157,7 +155,7 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 						sd.lon), sd.id, sd.label + "\n"
 						+ Integer.toString(sd.wind) + "g"
 						+ Integer.toString(sd.gust) +
-						"("+ minutesAgo + " min ago)");
+						" ("+ minutesAgo + " min ago)");
 				
 				layerDrawable.setBounds(0, 0,
 						layerDrawable.getIntrinsicWidth(),
