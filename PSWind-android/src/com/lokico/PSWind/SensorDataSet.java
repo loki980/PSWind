@@ -38,6 +38,7 @@ public class SensorDataSet {
 		public int gust = 0;
 		public int angle = 0;
 		public String angleImg = null;
+		public Boolean isStale = false;
 
 		public SensorData(String id, String label, int timestamp, float lat, float lon, int wind,
 				int gust, int angle) {

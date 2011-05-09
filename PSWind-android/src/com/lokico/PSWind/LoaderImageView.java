@@ -11,7 +11,6 @@ import android.os.Handler.Callback;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
@@ -26,7 +25,7 @@ public class LoaderImageView extends LinearLayout {
 	private Context mContext;
 	private Drawable mDrawable;
 	private ProgressBar mSpinner;
-	private ImageView mImage;
+	private AspectRatioImageView mImage;
 	private Boolean threadStarted = new Boolean("FALSE");
 
 	/**
@@ -71,7 +70,7 @@ public class LoaderImageView extends LinearLayout {
 	private void instantiate(final Context context, final String imageUrl) {
 		mContext = context;
 
-		mImage = new ImageView(mContext);
+		mImage = new AspectRatioImageView(mContext);
 		mImage.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,
 				LayoutParams.WRAP_CONTENT));
 

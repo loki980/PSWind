@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.text.format.Time;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
@@ -68,32 +69,69 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 			mySensorDataSet = mySensorDataXMLHandler.getParsedData();
 			SensorData sd;
 			String arrowPath = "";
-
+			Long twoHoursAgoInSec = (long)0;
+			Time currTime = new Time();
+			Time theSensorTime = new Time();
+			currTime.setToNow();
+			twoHoursAgoInSec = currTime.toMillis(true) / 1000 - (60*60*2);
+			Integer numOmitted = 0;
+			
 			for (int i = 0; i < mySensorDataSet.getSensorDataSize(); i++) {
-				sd = mySensorDataSet.getSensorByIndex(i);
+				sd = mySensorDataSet.getSensorByIndex(i);		
 				Integer resID = 0;
+				
+				theSensorTime.set((long)sd.timestamp * 1000);
 
-				/* Combine the two icons that make the overlayitem's marker */
-				Drawable[] layers = new Drawable[2];
-
-				/* arrow */
-				arrowPath = "drawable/sensormarker_m";
-				if (sd.wind > 19) {
-					arrowPath += "r";
-				} else if (sd.wind > 13) {
-					arrowPath += "g";
+				Long minutesAgo = (twoHoursAgoInSec + (60*60*2) - sd.timestamp) / 60;
+				if(minutesAgo > 60*24*2) {
+					/* If the sensor hasn't been updated in 2 days, remove it from the overlay */
+					System.out.printf("%d omitted\r\n", ++numOmitted);
+					continue;
+				} else if (minutesAgo > 180) {
+					/* If the sensor hasn't been updated in 3 hours, mark it as stale */
+					sd.isStale = true;
+					arrowPath = "drawable/sensormarker_ml_1";
 				} else {
-					arrowPath += "l";
+					/* arrow */
+					arrowPath = "drawable/sensormarker_m";
+					if (sd.wind > 19) {
+						/* Prefix for red arrow */
+						arrowPath += "r";
+					} else if (sd.wind > 13) {
+						/* Prefix for green arrow */
+						arrowPath += "g";
+					} else {
+						/* Prefix for grey arrow */
+						arrowPath += "l";
+					}
+
+					/* Append the angle of wind direction */
+					arrowPath += "_" + Integer.toString(sd.angle);
 				}
-				arrowPath += "_" + Integer.toString(sd.angle);
+
 				resID = context.getResources().getIdentifier(arrowPath, null,
 						context.getPackageName());
 				Assert.assertTrue("Resouce not found: " + arrowPath,
 						resID != 0);
+				
+				/* Combine the two icons that make the overlayitem's marker */
+				Drawable[] layers = new Drawable[2];
 				layers[0] = context.getResources().getDrawable(resID);
-
+				
 				/* number */
-				if (sd.wind >= 0 && sd.wind < 100) {
+				if (sd.wind > 99) {
+					/* We have no overlay for 100+ mph */
+					sd.wind = 99;
+				}
+				
+				if(sd.isStale) {
+					resID = context.getResources().getIdentifier(
+							"drawable/sensormarker_m", null,
+							context.getPackageName());
+					Assert.assertTrue(
+							"Resouce not found: drawable/sensormarker_m", resID != 0);
+					layers[1] = context.getResources().getDrawable(resID);
+				} else if (sd.wind >= 0 && sd.wind < 100) {
 					resID = context.getResources().getIdentifier(
 							"drawable/sensormarker_m"
 									+ Integer.toString(sd.wind), null,
@@ -101,7 +139,6 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 					Assert.assertTrue(
 							"Resouce not found: drawable/sensormarker_m"
 									+ Integer.toString(sd.wind), resID != 0);
-
 					layers[1] = context.getResources().getDrawable(resID);
 				} else {
 					/* If the wind is not valid, skip this marker */
@@ -113,17 +150,15 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 				OverlayItem overlayItem = null;
 				if(sd.gust == 0) {
 					/* Just set the gust reading to the wind reading */
-					overlayItem = new OverlayItem(getPoint(sd.lat,
-							sd.lon), sd.id, sd.label + "\n"
-							+ Integer.toString(sd.wind) + "g"
-							+ Integer.toString(sd.wind));
-				} else {
-					/* Use the legit gust reading */
-					overlayItem = new OverlayItem(getPoint(sd.lat,
-							sd.lon), sd.id, sd.label + "\n"
-							+ Integer.toString(sd.wind) + "g"
-							+ Integer.toString(sd.gust));
+					sd.gust = sd.wind;
 				}
+				
+				overlayItem = new OverlayItem(getPoint(sd.lat,
+						sd.lon), sd.id, sd.label + "\n"
+						+ Integer.toString(sd.wind) + "g"
+						+ Integer.toString(sd.gust) +
+						"("+ minutesAgo + " min ago)");
+				
 				layerDrawable.setBounds(0, 0,
 						layerDrawable.getIntrinsicWidth(),
 						layerDrawable.getIntrinsicHeight());
