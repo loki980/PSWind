@@ -17,7 +17,6 @@ import com.google.android.maps.MapView;
 public class PSWind extends MapActivity {
 	private MapView map = null;
 	private long lastTouchTime = -1;
-	private Drawable marker;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -97,27 +96,10 @@ public class PSWind extends MapActivity {
 	}
 
 	private void displayWind() {
-		/*
-		 * Default marker for the wind sensor overlay. Will probably never be
-		 * used.
-		 */
-		marker = getResources().getDrawable(
-				R.drawable.sensormarker_ml_1);
 
-		/*
-		 * Not sure what this does, but apparently things aren't drawn right if
-		 * it's not set this way
-		 */
-		marker.setBounds(0, 0, marker.getIntrinsicWidth(),
-				marker.getIntrinsicHeight());
 
 		/* Add the Wind Sensors overlay to our map */
-		System.out.println("new overlay incoming...");
-		WindSensorsOverlay windSensorsOverlay = new WindSensorsOverlay(PSWind.this, map, marker);
-		map.getOverlays().clear();
-		map.getOverlays().add(windSensorsOverlay);
-		map.invalidate();
-		Toast.makeText(PSWind.this, "Sensor data refreshed", 1).show();
+		new LoadMapItems(PSWind.this, map).execute((Object)null);
 	}
 	
 	private GeoPoint getPoint(double lat, double lon) {

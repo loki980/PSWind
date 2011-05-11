@@ -39,7 +39,7 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 	private MapView map;
 	private final String MY_DEBUG_TAG = "WindFetcherFail";
 
-	public WindSensorsOverlay(Context context, MapView map, Drawable marker) {
+	public WindSensorsOverlay(Context context, MapView map, Drawable marker, SensorDataXMLHandler mySensorDataXMLHandler) {
 		super(marker);
 		this.marker = marker;
 		this.map = map;
@@ -47,23 +47,7 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 		
 		/* Create a new TextView to display the parsing result later. */
 		try {
-			/* Create a URL we want to load some xml-data from. */
-			URL url = new URL(
-					"http://windonthewater.com/api/region_wind.php?v=1&r=nw&k=TEST");
 
-			/* Get a SAXParser from the SAXPArserFactory. */
-			SAXParserFactory spf = SAXParserFactory.newInstance();
-			SAXParser sp = spf.newSAXParser();
-
-			/* Get the XMLReader of the SAXParser we created. */
-			XMLReader xr = sp.getXMLReader();
-			/* Create a new ContentHandler and apply it to the XML-Reader */
-			SensorDataXMLHandler mySensorDataXMLHandler = new SensorDataXMLHandler();
-			xr.setContentHandler(mySensorDataXMLHandler);
-
-			/* Parse the xml-data from our URL. */
-			xr.parse(new InputSource(url.openStream()));
-			/* Parsing has finished. */
 
 			/* Our ExampleHandler now provides the parsed data to us. */
 			mySensorDataSet = mySensorDataXMLHandler.getParsedData();
