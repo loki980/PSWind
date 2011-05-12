@@ -1,6 +1,5 @@
 package com.lokico.PSWind;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.KeyEvent;
@@ -8,7 +7,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -31,26 +29,12 @@ public class PSWind extends MapActivity {
 		map.setBuiltInZoomControls(true);
 	}
 	
-	//Here's a runnable/handler combo
-	private Runnable mMyRunnable = new Runnable()
-	{
-	    public void run()
-	    {
-			displayWind();
-	    }
-	 };
-
+	
 	@Override
 	public void onResume() {
 		super.onResume();
 
 		queueUpdate();
-	}
-	
-	public void queueUpdate(){
-		Handler myHandler = new Handler();
-		// Delay loading the overlay by 1 ms to allow the map to display immediately.
-		myHandler.postDelayed(mMyRunnable, 100);
 	}
 	
 	@Override
@@ -63,6 +47,26 @@ public class PSWind extends MapActivity {
 		    default:
 		        return super.onOptionsItemSelected(item);
 	    }
+	}
+	
+	public void queueUpdate(){
+		Handler myHandler = new Handler();
+		// Delay loading the overlay by 1 ms to allow the map to display immediately.
+		myHandler.postDelayed(mMyRunnable, 100);
+	}
+	
+	//Here's a runnable/handler combo
+	private Runnable mMyRunnable = new Runnable()
+	{
+	    public void run()
+	    {
+			displayWind();
+	    }
+	 };
+
+	private void displayWind() {
+		/* Add the Wind Sensors overlay to our map */
+		new LoadMapItems(PSWind.this, map).execute((Object)null);
 	}
 	
 	@Override
@@ -93,13 +97,6 @@ public class PSWind extends MapActivity {
 		}
 
 		return (super.onKeyDown(keyCode, event));
-	}
-
-	private void displayWind() {
-
-
-		/* Add the Wind Sensors overlay to our map */
-		new LoadMapItems(PSWind.this, map).execute((Object)null);
 	}
 	
 	private GeoPoint getPoint(double lat, double lon) {

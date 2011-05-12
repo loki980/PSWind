@@ -1,28 +1,20 @@
 package com.lokico.PSWind;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import junit.framework.Assert;
-
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.text.format.Time;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.text.format.Time;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.ItemizedOverlay;
@@ -167,7 +159,17 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 		super.draw(canvas, mapView, false);
 		boundCenter(marker);
 	}
-
+	
+	@Override
+	public boolean onTap(GeoPoint p, MapView mapView) {
+		if(super.onTap(p, mapView)) {
+			return true;
+		} else {
+			panel.hide();
+			return false;
+		}
+	}
+	
 	@Override
 	protected boolean onTap(int i) {
 		OverlayItem item = getItem(i);
@@ -202,6 +204,7 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 	class PopupPanel {
 		View popup;
 		boolean isVisible = false;
+		boolean popupClicked = false;
 
 		PopupPanel(Context context, int layout) {
 			ViewGroup parent = (ViewGroup) map.getParent();
@@ -210,7 +213,7 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 
 			popup.setOnClickListener(new View.OnClickListener() {
 				public void onClick(View v) {
-					hide();
+					popupClicked = true;
 				}
 			});
 		}

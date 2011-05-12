@@ -125,7 +125,7 @@ public class LoadMapItems extends AsyncTask<Object, Object, Object> {
 			failed = true;
 		}
 
-		return "";
+		return null;
 	}
 
 }
