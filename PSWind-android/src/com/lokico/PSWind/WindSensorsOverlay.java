@@ -11,6 +11,9 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.text.format.Time;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -30,6 +33,8 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 	private SensorDataSet mySensorDataSet;
 	private MapView map;
 	private final String MY_DEBUG_TAG = "WindFetcherFail";
+	private int windGraphDaysAgo = 0;
+	private OverlayItem item = null;
 
 	public WindSensorsOverlay(Context context, MapView map, Drawable marker, SensorDataXMLHandler mySensorDataXMLHandler) {
 		super(marker);
@@ -172,7 +177,7 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 	
 	@Override
 	protected boolean onTap(int i) {
-		OverlayItem item = getItem(i);
+		item = getItem(i);
 		GeoPoint geo = item.getPoint();
 		Point pt = map.getProjection().toPixels(geo, null);
 
@@ -204,19 +209,77 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 	class PopupPanel {
 		View popup;
 		boolean isVisible = false;
-		boolean popupClicked = false;
+	    private static final int SWIPE_MIN_DISTANCE = 120;
+	    private static final int SWIPE_MAX_OFF_PATH = 250;
+	    private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+	    private GestureDetector gestureDetector;
+	    public View.OnTouchListener gestureListener;
 
 		PopupPanel(Context context, int layout) {
 			ViewGroup parent = (ViewGroup) map.getParent();
 
 			popup = ((MapActivity) context).getLayoutInflater().inflate(layout, parent, false);
-
-			popup.setOnClickListener(new View.OnClickListener() {
-				public void onClick(View v) {
-					popupClicked = true;
-				}
-			});
+			
+	        // Gesture detection
+	        gestureDetector = new GestureDetector(new MyGestureDetector());
+	        gestureListener = new View.OnTouchListener() {
+	            public boolean onTouch(View v, MotionEvent event) {
+	                if (gestureDetector.onTouchEvent(event)) {
+	                    return true;
+	                }
+	                return false;
+	            }
+	        };
+	        
+            popup.setOnTouchListener(gestureListener);
 		}
+		
+	    class MyGestureDetector extends SimpleOnGestureListener {
+	        @Override
+	        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+	            try {
+	                if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH)
+	                    return false;
+	                
+	                View view = panel.getView();
+
+	                /* Display the sensor's name above its graph */
+	                ((TextView) view.findViewById(R.id.sensorname)).setText(item
+	                        .getSnippet());
+	                
+	                // right to left swipe
+	                if(e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                        if(--windGraphDaysAgo < 0) {
+                            windGraphDaysAgo = 0;
+                        } else {
+                            /* Load the correct graph for the wind sensor */
+                            ((LoaderImageView) view.findViewById(R.id.windGraph))
+                                    .setImageDrawable("http://windonthewater.com/wg.php?s="
+                                            + item.getTitle() + "&d=" + windGraphDaysAgo);
+                        }
+	                }  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+	                    if(++windGraphDaysAgo > 5) {
+	                        windGraphDaysAgo = 5;
+	                    } else {
+    	                    /* Load the correct graph for the wind sensor */
+    	                    ((LoaderImageView) view.findViewById(R.id.windGraph))
+    	                            .setImageDrawable("http://windonthewater.com/wg.php?s="
+    	                                    + item.getTitle() + "&d=" + windGraphDaysAgo);
+	                    }
+	                }
+	            } catch (Exception e) {
+	                // nothing
+	            }
+	            return false;
+	        }
+
+	        @Override
+	        public boolean onDown(MotionEvent e) {
+	        	int i=0;
+	        	i++;
+	        	return true;
+	        }
+	    }
 
 		View getView() {
 			return (popup);
