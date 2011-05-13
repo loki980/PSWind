@@ -171,6 +171,7 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 			return true;
 		} else {
 			panel.hide();
+			windGraphDaysAgo = 0;
 			return false;
 		}
 	}
