@@ -17,6 +17,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.widget.Toast;
 
 import com.google.android.maps.MapView;
@@ -56,14 +57,27 @@ public class LoadMapItems extends AsyncTask<Object, Object, Object> {
 		map.invalidate();
 
 		if(!failed) {
-			Toast.makeText(ctx, "Sensor data refreshed", 1).show();
+			Toast.makeText(ctx, "Sensor data refreshed", Toast.LENGTH_SHORT).show();
 		} else {
-			Toast.makeText(ctx, "Cannot fetch data.  Check your connection.", 1).show();
+			Toast.makeText(ctx, "Refresh failed.  Retrying...", Toast.LENGTH_SHORT).show();
+
+	        // Delay loading the overlay by 1 ms to allow the map to display immediately.
+	        Handler myHandler = new Handler();
+	        myHandler.postDelayed(mMyRunnable, 2000);
 		}
 		
 		super.onPostExecute(result);
 	}
-
+    
+    //Here's a runnable/handler combo
+    private Runnable mMyRunnable = new Runnable()
+    {
+        public void run()
+        {
+            new LoadMapItems(ctx, map).execute((Object)null);
+        }
+    };
+    
 	@Override
 	protected Object doInBackground(Object... params) {
 		/*

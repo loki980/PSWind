@@ -62,7 +62,7 @@ public class PSWind extends MapActivity {
 	    {
 			displayWind();
 	    }
-	 };
+	};
 
 	private void displayWind() {
 		/* Add the Wind Sensors overlay to our map */
