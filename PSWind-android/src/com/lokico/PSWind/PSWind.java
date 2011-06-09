@@ -15,7 +15,7 @@ import com.google.android.maps.MapView;
 public class PSWind extends MapActivity {
 	private MapView map = null;
 	private long lastTouchTime = -1;
-	
+    
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -56,10 +56,8 @@ public class PSWind extends MapActivity {
 	}
 	
 	//Here's a runnable/handler combo
-	private Runnable mMyRunnable = new Runnable()
-	{
-	    public void run()
-	    {
+	private Runnable mMyRunnable = new Runnable() {
+	    public void run() {
 			displayWind();
 	    }
 	};

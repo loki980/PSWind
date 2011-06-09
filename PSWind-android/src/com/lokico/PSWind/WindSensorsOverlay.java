@@ -5,8 +5,12 @@ import java.util.List;
 
 import junit.framework.Assert;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Matrix;
 import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.text.format.Time;
@@ -35,11 +39,13 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 	private final String MY_DEBUG_TAG = "WindFetcherFail";
 	private int windGraphDaysAgo = 0;
 	private OverlayItem item = null;
+	private Context ctx;
 
 	public WindSensorsOverlay(Context context, MapView map, Drawable marker, SensorDataXMLHandler mySensorDataXMLHandler) {
 		super(marker);
 		this.marker = marker;
 		this.map = map;
+		ctx = context;
 		panel = new PopupPanel(context, R.layout.popup);
 		
 		/* Create a new TextView to display the parsing result later. */
@@ -57,6 +63,9 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 			twoHoursAgoInSec = currTime.toMillis(true) / 1000 - (60*60*2);
 			
 			for (int i = 0; i < mySensorDataSet.getSensorDataSize(); i++) {
+				/* Combine the two icons that make the overlayitem's marker */
+				Drawable[] layers = new Drawable[2];
+				
 				sd = mySensorDataSet.getSensorByIndex(i);		
 				Integer resID = 0;
 				
@@ -69,34 +78,40 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 				} else if (minutesAgo > 180) {
 					/* If the sensor hasn't been updated in 3 hours, mark it as stale */
 					sd.isStale = true;
-					arrowPath = "drawable/sensormarker_ml_1";
+					arrowPath = "drawable/marker_stale";
+					
+					resID = context.getResources().getIdentifier(arrowPath, null,
+							context.getPackageName());
+					Assert.assertTrue("Resouce not found: " + arrowPath,
+							resID != 0);
+
+					layers[0] = context.getResources().getDrawable(resID);
 				} else {
 					/* arrow */
-					arrowPath = "drawable/sensormarker_m";
-					if (sd.wind > 19) {
+					arrowPath = "drawable/";
+					if (sd.wind > 28) {
 						/* Prefix for red arrow */
-						arrowPath += "r";
-					} else if (sd.wind > 13) {
-						/* Prefix for green arrow */
-						arrowPath += "g";
+						arrowPath += "marker_high_wind";
+                    } else if (sd.wind > 19) {
+                        /* Prefix for orange arrow */
+                        arrowPath += "marker_medium_wind";
+                    } else if (sd.wind > 13) {
+                        /* Prefix for green arrow */
+                        arrowPath += "marker_light_wind";
 					} else {
 						/* Prefix for grey arrow */
-						arrowPath += "l";
+						arrowPath += "marker_no_wind";
 					}
-
-					/* Append the angle of wind direction */
-					arrowPath += "_" + Integer.toString(sd.angle);
+	                
+                   resID = context.getResources().getIdentifier(arrowPath, null,
+                            context.getPackageName());
+                    Assert.assertTrue("Resouce not found: " + arrowPath,
+                            resID != 0);
+	                    
+					/* Rotate to match the wind direction */
+					layers[0] = this.Rotate(BitmapFactory.decodeResource(ctx.getResources(), resID), sd.angle);
 				}
 
-				resID = context.getResources().getIdentifier(arrowPath, null,
-						context.getPackageName());
-				Assert.assertTrue("Resouce not found: " + arrowPath,
-						resID != 0);
-				
-				/* Combine the two icons that make the overlayitem's marker */
-				Drawable[] layers = new Drawable[2];
-				layers[0] = context.getResources().getDrawable(resID);
-				
 				/* number */
 				if (sd.wind > 99) {
 					/* We have no overlay for 100+ mph */
@@ -105,18 +120,18 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 				
 				if(sd.isStale) {
 					resID = context.getResources().getIdentifier(
-							"drawable/sensormarker_m", null,
+							"drawable/windspeed", null,
 							context.getPackageName());
 					Assert.assertTrue(
-							"Resouce not found: drawable/sensormarker_m", resID != 0);
+							"Resouce not found: drawable/windspeed", resID != 0);
 					layers[1] = context.getResources().getDrawable(resID);
 				} else if (sd.wind >= 0 && sd.wind < 100) {
 					resID = context.getResources().getIdentifier(
-							"drawable/sensormarker_m"
+							"drawable/windspeed"
 									+ Integer.toString(sd.wind), null,
 							context.getPackageName());
 					Assert.assertTrue(
-							"Resouce not found: drawable/sensormarker_m"
+							"Resouce not found: drawable/windspeed"
 									+ Integer.toString(sd.wind), resID != 0);
 					layers[1] = context.getResources().getDrawable(resID);
 				} else {
@@ -154,6 +169,25 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 		populate();
 	}
 
+	/* Using a canvas element here prevents shrinking due to boundaries when rotating */
+    public Drawable Rotate(Bitmap bMap, int degrees) {
+        // Create blank bitmap of equal size
+        Bitmap canvasBitmap = bMap.copy(Bitmap.Config.ARGB_8888, true);
+        canvasBitmap.eraseColor(0x00000000);
+
+        // Create canvas
+        Canvas canvas = new Canvas(canvasBitmap);
+
+        // Create rotation matrix
+        Matrix rotateMatrix = new Matrix();
+        rotateMatrix.setRotate(degrees, canvas.getWidth()/2, canvas.getHeight()/2);
+
+        // Draw bitmap onto canvas using matrix
+        canvas.drawBitmap(bMap, rotateMatrix, null);
+
+        return new BitmapDrawable(canvasBitmap); 
+    }
+    
 	@Override
 	protected OverlayItem createItem(int i) {
 		return (items.get(i));

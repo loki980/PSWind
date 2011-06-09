@@ -29,6 +29,7 @@ public class LoadMapItems extends AsyncTask<Object, Object, Object> {
 	private Drawable marker;
 	private SensorDataXMLHandler mySensorDataXMLHandler = null;
 	private Boolean failed = false;
+	private Boolean asyncTaskRunning = false;
 
 	public LoadMapItems(Context context, MapView map) {
 		ctx = context;
@@ -51,10 +52,14 @@ public class LoadMapItems extends AsyncTask<Object, Object, Object> {
 			// display data
 		}
 		
-		WindSensorsOverlay windSensorsOverlay = new WindSensorsOverlay(ctx, map, marker, mySensorDataXMLHandler);
-		map.getOverlays().clear();
-		map.getOverlays().add(windSensorsOverlay);
-		map.invalidate();
+		if(mySensorDataXMLHandler != null) {
+		    WindSensorsOverlay windSensorsOverlay = new WindSensorsOverlay(ctx, map, marker, mySensorDataXMLHandler);
+		    map.getOverlays().clear();
+		    map.getOverlays().add(windSensorsOverlay);
+		    map.invalidate();
+		} else {
+		    failed = true;
+		}
 
 		if(!failed) {
 			Toast.makeText(ctx, "Sensor data refreshed", Toast.LENGTH_SHORT).show();
@@ -65,6 +70,9 @@ public class LoadMapItems extends AsyncTask<Object, Object, Object> {
 	        Handler myHandler = new Handler();
 	        myHandler.postDelayed(mMyRunnable, 2000);
 		}
+		
+		/* Allow the task to be run again */
+		asyncTaskRunning = false;
 		
 		super.onPostExecute(result);
 	}
@@ -80,12 +88,19 @@ public class LoadMapItems extends AsyncTask<Object, Object, Object> {
     
 	@Override
 	protected Object doInBackground(Object... params) {
+	    /* Prevents more than one background request for data */
+	    if (asyncTaskRunning) {
+	        return null;
+	    } else {
+	        asyncTaskRunning = true;
+	    }
+	    
 		/*
 		 * Default marker for the wind sensor overlay. Will probably never be
 		 * used.
 		 */
 		marker = ctx.getResources().getDrawable(
-				R.drawable.sensormarker_ml_1);
+				R.drawable.marker_no_wind);
 
 		/*
 		 * Not sure what this does, but apparently things aren't drawn right if
