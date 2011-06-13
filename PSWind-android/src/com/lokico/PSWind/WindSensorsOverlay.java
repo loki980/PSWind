@@ -163,7 +163,7 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 			}
 		} catch (Exception e) {
 			/* Display any Error to the GUI. */
-			Log.e(MY_DEBUG_TAG, "WindFetchError", e);
+			//Log.e(MY_DEBUG_TAG, "WindFetchError", e);
 		}
 
 		populate();
