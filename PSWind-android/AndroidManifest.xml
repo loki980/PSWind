@@ -19,6 +19,8 @@
         </activity>
         
         <activity android:name="Omnimap" />
+        <activity android:name="TJ_Seattle" />
+        <activity android:name="TJ_NorthSound" />
         
         <uses-library android:name="com.google.android.maps" />
     </application>
