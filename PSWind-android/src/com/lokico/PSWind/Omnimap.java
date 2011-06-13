@@ -12,14 +12,14 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
 
-public class PSWind extends MapActivity {
+public class Omnimap extends MapActivity {
 	private MapView map = null;
 	private long lastTouchTime = -1;
     
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.main);
+		setContentView(R.layout.omnimap);
 
 		map = (MapView) findViewById(R.id.map);
 
@@ -64,13 +64,13 @@ public class PSWind extends MapActivity {
 
 	private void displayWind() {
 		/* Add the Wind Sensors overlay to our map */
-		new LoadMapItems(PSWind.this, map).execute((Object)null);
+		new LoadMapItems(Omnimap.this, map).execute((Object)null);
 	}
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 	    MenuInflater inflater = getMenuInflater();
-	    inflater.inflate(R.menu.windsensor, menu);
+	    inflater.inflate(R.menu.mapmenu, menu);
 	    return true;
 	}
 	

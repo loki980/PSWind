@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:gravity="center_horizontal"
+    android:background="#ff699ccf">
+    <LinearLayout
+	    android:id="@+id/top_bar"
+	    android:layout_width="fill_parent"
+	    android:layout_height="32dp"
+        android:layout_weight="0"
+	/>
+
+    <Button android:text="Omnimap"
+        android:id="@+id/Button01"
+        android:layout_width="250px"
+            android:textSize="24px"
+        android:layout_height="95px">
+    </Button>    
+
+    <Button android:text="TJ's - Jetty"
+        android:id="@+id/Button02"
+        android:layout_width="250px"
+            android:textSize="24px"
+        android:layout_height="95px">
+    </Button>    
+
+    <Button android:text="TJ's - Locust"
+        android:id="@+id/Button03"
+        android:layout_width="250px"
+            android:textSize="24px"
+        android:layout_height="95px">
+    </Button>
+    
+    <Button android:text="NOAA Forecast"
+        android:id="@+id/Button03"
+        android:layout_width="250px"
+            android:textSize="24px"
+        android:layout_height="95px">
+    </Button>    
+
+</LinearLayout>
