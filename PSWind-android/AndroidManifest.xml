@@ -21,6 +21,7 @@
         <activity android:name="Omnimap" />
         <activity android:name="TJ_Seattle" />
         <activity android:name="TJ_NorthSound" />
+        <activity android:name="NOAA" />
         
         <uses-library android:name="com.google.android.maps" />
     </application>

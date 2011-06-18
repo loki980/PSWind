@@ -52,7 +52,7 @@ public class LoadMapItems extends AsyncTask<Object, Object, Object> {
 			// display data
 		}
 		
-		if(mySensorDataXMLHandler != null) {
+		if(mySensorDataXMLHandler != null && !failed) {
 		    WindSensorsOverlay windSensorsOverlay = new WindSensorsOverlay(ctx, map, marker, mySensorDataXMLHandler);
 		    map.getOverlays().clear();
 		    map.getOverlays().add(windSensorsOverlay);

@@ -89,7 +89,7 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 				} else {
 					/* arrow */
 					arrowPath = "drawable/";
-					if (sd.wind > 28) {
+					if (sd.wind > 27) {
 						/* Prefix for red arrow */
 						arrowPath += "marker_high_wind";
                     } else if (sd.wind > 19) {

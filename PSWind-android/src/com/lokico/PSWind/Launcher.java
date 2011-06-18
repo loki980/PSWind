@@ -37,15 +37,13 @@ public class Launcher extends Activity {
             }
         });
         
-/*
         next = (Button) findViewById(R.id.Button_NOAA);
         next.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                Intent myIntent = new Intent(view.getContext(), Omnimap.class);
+                Intent myIntent = new Intent(view.getContext(), NOAA.class);
                 startActivityForResult(myIntent, 0);
             }
         });
-*/
         
     }
 }
