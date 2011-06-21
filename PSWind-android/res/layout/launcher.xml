@@ -4,13 +4,28 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:gravity="center_horizontal"
-    android:background="#ff699ccf">
+    android:background="@drawable/launcherbg">
     <LinearLayout
 	    android:id="@+id/top_bar"
 	    android:layout_width="fill_parent"
-	    android:layout_height="32dp"
+	    android:layout_height="7dp"
         android:layout_weight="0"
 	/>
+    <ImageView
+        android:id="@+id/myimg" 
+        android:layout_width="162dip"
+        android:layout_height="54dip"
+        android:scaleType="fitXY"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/pswind"
+    />
+    
+    <LinearLayout
+        android:id="@+id/middle_bar"
+        android:layout_width="fill_parent"
+        android:layout_height="115dp"
+        android:layout_weight="0"
+    />
 
     <Button android:text="Omnimap"
         android:id="@+id/ButtonOmni"
