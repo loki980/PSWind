@@ -15,6 +15,7 @@ public class TJ_Seattle extends Activity {
 
         WebView engine = (WebView) findViewById(R.id.web_engine);
         engine.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
+        engine.getSettings().setAppCacheEnabled(false);
         engine.getSettings().setJavaScriptEnabled(true);
         engine.setBackgroundColor(Color.parseColor("#699ccf"));
         engine.loadUrl("http://pskite.org/looptest/android_tj_seattle.php");  
