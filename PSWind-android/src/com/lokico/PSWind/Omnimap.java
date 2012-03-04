@@ -15,6 +15,7 @@ import com.google.android.maps.MapView;
 public class Omnimap extends MapActivity {
 	private MapView map = null;
 	private long lastTouchTime = -1;
+	private int overlayRetries = 0;
     
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -29,7 +30,14 @@ public class Omnimap extends MapActivity {
 		map.setBuiltInZoomControls(true);
 	}
 	
-	
+    public int getOverlayRetries() {
+        return overlayRetries;
+    }
+
+    public void setOverlayRetries(int retries) {
+        overlayRetries = retries;
+    }
+
 	@Override
 	public void onResume() {
 		super.onResume();

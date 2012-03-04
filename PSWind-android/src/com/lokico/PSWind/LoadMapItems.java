@@ -26,6 +26,7 @@ public class LoadMapItems extends AsyncTask<Object, Object, Object> {
 	private ProgressDialog dlg;
 	private Context ctx;
 	private MapView map;
+	private Omnimap omap;
 	private Drawable marker;
 	private SensorDataXMLHandler mySensorDataXMLHandler = null;
 	private Boolean failed = false;
@@ -34,6 +35,7 @@ public class LoadMapItems extends AsyncTask<Object, Object, Object> {
 	public LoadMapItems(Context context, MapView map) {
 		ctx = context;
 		this.map = map;
+		omap = (Omnimap)ctx;
 	}
 
 	@Override
@@ -61,14 +63,19 @@ public class LoadMapItems extends AsyncTask<Object, Object, Object> {
 		    failed = true;
 		}
 
-		if(!failed) {
-			Toast.makeText(ctx, "Sensor data refreshed", Toast.LENGTH_SHORT).show();
-		} else {
-			Toast.makeText(ctx, "Refresh failed.  Retrying...", Toast.LENGTH_SHORT).show();
+		if(failed && omap.getOverlayRetries() > 2) {
+            omap.setOverlayRetries(0);
+            Toast.makeText(ctx, "Failed 3 times, suspending...", Toast.LENGTH_SHORT).show();
+		} else if (failed) {
+		    omap.setOverlayRetries(omap.getOverlayRetries() + 1);
+            Toast.makeText(ctx, "Refresh failed.  Retrying...", Toast.LENGTH_SHORT).show();
 
-	        // Delay loading the overlay by 1 ms to allow the map to display immediately.
-	        Handler myHandler = new Handler();
-	        myHandler.postDelayed(mMyRunnable, 2000);
+            // Delay loading the overlay by 1 ms to allow the map to display immediately.
+            Handler myHandler = new Handler();
+            myHandler.postDelayed(mMyRunnable, 3000);
+		} else {
+		    omap.setOverlayRetries(0);
+            Toast.makeText(ctx, "Sensor data refreshed", Toast.LENGTH_SHORT).show();
 		}
 		
 		/* Allow the task to be run again */
