@@ -14,7 +14,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.text.format.Time;
-import android.util.Log;
+//import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
@@ -36,7 +36,7 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 	private PopupPanel panel;
 	private SensorDataSet mySensorDataSet;
 	private MapView map;
-	private final String MY_DEBUG_TAG = "WindFetcherFail";
+	//private final String MY_DEBUG_TAG = "WindFetcherFail";
 	private int windGraphDaysAgo = 0;
 	private OverlayItem item = null;
 	private Context ctx;
@@ -47,6 +47,7 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 		this.map = map;
 		ctx = context;
 		panel = new PopupPanel(context, R.layout.popup);
+		((Omnimap)ctx).panel = panel;
 		
 		/* Create a new TextView to display the parsing result later. */
 		try {

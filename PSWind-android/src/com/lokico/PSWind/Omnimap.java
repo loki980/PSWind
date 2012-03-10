@@ -7,21 +7,24 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
+import com.lokico.PSWind.WindSensorsOverlay.PopupPanel;
 
 public class Omnimap extends MapActivity {
 	private MapView map = null;
 	private long lastTouchTime = -1;
 	private int overlayRetries = 0;
+    public PopupPanel panel;
     
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.omnimap);
-
+		
 		map = (MapView) findViewById(R.id.map);
 
 		/* Center map around Seattle */
@@ -42,6 +45,9 @@ public class Omnimap extends MapActivity {
 	public void onResume() {
 		super.onResume();
 
+        if(panel != null) {
+            panel.hide();
+        }
 		queueUpdate();
 	}
 	
