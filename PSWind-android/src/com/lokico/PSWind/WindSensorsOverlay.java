@@ -51,8 +51,6 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 		
 		/* Create a new TextView to display the parsing result later. */
 		try {
-
-
 			/* Our ExampleHandler now provides the parsed data to us. */
 			mySensorDataSet = mySensorDataXMLHandler.getParsedData();
 			SensorData sd;

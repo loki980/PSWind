@@ -31,11 +31,13 @@ public class LoadMapItems extends AsyncTask<Object, Object, Object> {
 	private SensorDataXMLHandler mySensorDataXMLHandler = null;
 	private Boolean failed = false;
 	private Boolean asyncTaskRunning = false;
+	private WindSensorsOverlay windSensorsOverlay;
 
 	public LoadMapItems(Context context, MapView map) {
 		ctx = context;
 		this.map = map;
 		omap = (Omnimap)ctx;
+		omap.windSensorsOverlay = windSensorsOverlay;
 	}
 
 	@Override
@@ -55,8 +57,7 @@ public class LoadMapItems extends AsyncTask<Object, Object, Object> {
 		}
 		
 		if(mySensorDataXMLHandler != null && !failed) {
-		    WindSensorsOverlay windSensorsOverlay = new WindSensorsOverlay(ctx, map, marker, mySensorDataXMLHandler);
-		    map.getOverlays().clear();
+		    windSensorsOverlay = new WindSensorsOverlay(ctx, map, marker, mySensorDataXMLHandler);
 		    map.getOverlays().add(windSensorsOverlay);
 		    map.invalidate();
 		} else {

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 
 public class Launcher extends Activity {
@@ -13,6 +14,8 @@ public class Launcher extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.launcher);
 
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        
         Button next = (Button) findViewById(R.id.ButtonOmni);
         next.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {

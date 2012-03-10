@@ -3,6 +3,7 @@ package com.lokico.PSWind;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -12,6 +13,7 @@ public class TJ_Seattle extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tj_seattle);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         WebView engine = (WebView) findViewById(R.id.web_engine);
         engine.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
