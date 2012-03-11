@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="fill_parent"
-	android:layout_height="fill_parent">
-	<com.google.android.maps.MapView android:id="@+id/map"
-		android:layout_width="fill_parent"
-		android:layout_height="fill_parent"
-		android:apiKey="04qModxuaTNZO4MQncIQBa9oLu_JTiKvqYtczLg"
-		android:clickable="true" />
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+    <com.google.android.maps.MapView android:id="@+id/map"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:apiKey="04qModxuaTNZ6LmE9kzUcQErJNZM-QAbCBaJPmg"
+        android:clickable="true" />
 </RelativeLayout>
 

@@ -20,7 +20,6 @@ public class TJ_NorthSound extends Activity {
         engine.getSettings().setAppCacheEnabled(false);
         engine.getSettings().setJavaScriptEnabled(true);
         engine.setBackgroundColor(Color.parseColor("#699ccf"));
-        engine.loadUrl("http://pskite.org/looptest/android_tj_northsound" +
-        		".php");  
+        engine.loadUrl("http://pskite.org/looptest/android_tj_northsound.php");  
     }
 }
