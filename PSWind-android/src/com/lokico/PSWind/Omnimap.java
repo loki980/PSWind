@@ -7,12 +7,14 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
-import com.lokico.PSWind.WindSensorsOverlay.PopupPanel;
 import com.google.android.maps.MyLocationOverlay;
+import com.lokico.PSWind.WindSensorsOverlay.PopupPanel;
 
 public class Omnimap extends MapActivity {
     private MapView map = null;
@@ -20,7 +22,8 @@ public class Omnimap extends MapActivity {
     private long lastTouchTime = -1;
     private int overlayRetries = 0;
     public PopupPanel panel;
-    public WindSensorsOverlay windSensorsOverlay;
+    private LoadMapItems LoadMapItemsTask;
+    public WindSensorsOverlay windSensorsOverlay = null;
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,7 +44,7 @@ public class Omnimap extends MapActivity {
     private Runnable centerAroundFix = new Runnable() {
         public void run() {
             map.getController().animateTo(locationOverlay.getMyLocation());
-            map.getController().setZoom(11);
+            map.getController().setZoom(12);
         }
     };
     
@@ -99,12 +102,8 @@ public class Omnimap extends MapActivity {
     };
 
     private void displayWind() {
-        if (windSensorsOverlay != null) {
-            map.getOverlays().remove(windSensorsOverlay);
-        }
-        
         /* Add the Wind Sensors overlay to our map */
-        new LoadMapItems(Omnimap.this, map).execute((Object)null);
+        LoadMapItemsTask = (LoadMapItems) new LoadMapItems(Omnimap.this, map).execute((Object)null);
     }
     
     @Override
@@ -148,5 +147,33 @@ public class Omnimap extends MapActivity {
         }
 
         return super.dispatchTouchEvent(ev);
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    
+        /* Cancel any background fetches for data */
+        if(!LoadMapItemsTask.isCancelled()) {
+            LoadMapItemsTask.cancel(true);
+        }
+        /* These next three lines are an attempt to prevent "java.lang.OutOfMemoryError: bitmap size exceeds VM budget"
+         * Details here:
+         * http://stackoverflow.com/questions/1949066/java-lang-outofmemoryerror-bitmap-size-exceeds-vm-budget-android */
+        map.getOverlays().clear();
+        unbindDrawables(findViewById(R.id.mapParent));
+        System.gc();
+    }
+
+    private void unbindDrawables(View view) {
+        if (view.getBackground() != null) {
+            view.getBackground().setCallback(null);
+        }
+        if (view instanceof ViewGroup) {
+            for (int i = 0; i < ((ViewGroup) view).getChildCount(); i++) {
+                unbindDrawables(((ViewGroup) view).getChildAt(i));
+            }
+            ((ViewGroup) view).removeAllViews();
+        }
     }
 }

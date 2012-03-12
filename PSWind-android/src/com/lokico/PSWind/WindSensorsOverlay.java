@@ -167,6 +167,12 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
 
         populate();
     }
+    
+    public void clearDrawables() {
+        for(OverlayItem oItem : items) {
+            oItem.setMarker(null);
+        }
+    }
 
     /* Using a canvas element here prevents shrinking due to boundaries when rotating */
     public Drawable Rotate(Bitmap bMap, int degrees) {
