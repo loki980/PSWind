@@ -23,14 +23,14 @@
     <LinearLayout
         android:id="@+id/middle_bar"
         android:layout_width="fill_parent"
-        android:layout_height="115dp"
+        android:layout_height="140dp"
         android:layout_weight="0"
     />
 
     <Button android:text="Omnimap"
         android:id="@+id/ButtonOmni"
         android:layout_width="250px"
-            android:textSize="24px"
+        android:textSize="24px"
         android:layout_height="95px">
     </Button>    
 

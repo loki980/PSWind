@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 public class Launcher extends Activity {
     /** Called when the activity is first created. */
@@ -48,5 +49,14 @@ public class Launcher extends Activity {
             }
         });
         
+        Button btn;
+        btn = (Button)findViewById(R.id.ButtonOmni);
+        btn.getBackground().setAlpha(100);
+        btn = (Button)findViewById(R.id.ButtonTJ_Jetty);
+        btn.getBackground().setAlpha(100);
+        btn = (Button)findViewById(R.id.ButtonTJ_Locust);
+        btn.getBackground().setAlpha(100);
+        btn = (Button)findViewById(R.id.Button_NOAA);
+        btn.getBackground().setAlpha(100);
     }
 }
