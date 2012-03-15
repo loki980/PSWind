@@ -22,7 +22,7 @@ public class Omnimap extends MapActivity {
     private long lastTouchTime = -1;
     private int overlayRetries = 0;
     public PopupPanel panel;
-    private LoadMapItems LoadMapItemsTask;
+    private WindSensorsOverlayAsyncTask LoadMapItemsTask;
     public WindSensorsOverlay windSensorsOverlay = null;
     
     @Override
@@ -35,7 +35,7 @@ public class Omnimap extends MapActivity {
         map = (MapView) findViewById(R.id.map);
         map.setBuiltInZoomControls(true);
 
-        /* Needed for the compass */
+        /* Add a marker indicating the user's location */
         locationOverlay = new MyLocationOverlay(this, map);
         locationOverlay.runOnFirstFix(centerAroundFix);
         map.getOverlays().add(locationOverlay);
@@ -43,11 +43,13 @@ public class Omnimap extends MapActivity {
 
     private Runnable centerAroundFix = new Runnable() {
         public void run() {
+            /* Jump to current location and set zoom accordingly */
             map.getController().animateTo(locationOverlay.getMyLocation());
             map.getController().setZoom(12);
         }
     };
     
+    /* Used by async task to know how many times to retry before giving up */
     public int getOverlayRetries() {
         return overlayRetries;
     }
@@ -62,75 +64,68 @@ public class Omnimap extends MapActivity {
 
         locationOverlay.enableMyLocation();
         
-        if(panel != null) {
-            panel.hide();
-        }
-        
-        queueUpdate();
+        queueWindSensorsUpdate();
     }
 
     @Override
     public void onPause() {
         super.onPause();
 
+        /* Hide any panel if it's open */
+        if(panel != null) {
+            panel.hide();
+        }
+        
         locationOverlay.disableMyLocation();
     }
     
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle item selection
-        switch (item.getItemId()) {
-            case R.id.refresh:
-                queueUpdate();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-    
-    public void queueUpdate(){
-        Handler myHandler = new Handler();
-        // Delay loading the overlay by 1 ms to allow the map to display immediately.
-        myHandler.postDelayed(mMyRunnable, 100);
-    }
-    
-    //Here's a runnable/handler combo
-    private Runnable mMyRunnable = new Runnable() {
-        public void run() {
-            displayWind();
-        }
-    };
-
-    private void displayWind() {
-        /* Add the Wind Sensors overlay to our map */
-        LoadMapItemsTask = (LoadMapItems) new LoadMapItems(Omnimap.this, map).execute((Object)null);
-    }
-    
+    /* Handles creation of menu */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.mapmenu, menu);
         return true;
     }
+
+    /* Handle item selection in menu - currently only 'refresh' option available */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.refresh:
+                queueWindSensorsUpdate();
+                return true;
+            case R.id.satToggle:
+                map.setSatellite(!map.isSatellite());
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
     
+    /* Next three functions are a roundabout way to let the map load before the sensor overlay is ready */
+    public void queueWindSensorsUpdate(){
+        Handler myHandler = new Handler();
+        // Delay loading the overlay by 100 ms to allow the map to display immediately.
+        myHandler.postDelayed(windSensorsUpdateRunnable, 100);
+    }
+    
+    private Runnable windSensorsUpdateRunnable = new Runnable() {
+        public void run() {
+            windSensorsUpdate();
+        }
+    };
+
+    private void windSensorsUpdate() {
+        /* Add the Wind Sensors overlay to our map.  We save the task so we can cancel it on leaving the page */
+        LoadMapItemsTask = (WindSensorsOverlayAsyncTask) new WindSensorsOverlayAsyncTask(Omnimap.this, map).execute((Object)null);
+    }
+    
+    /* Required implementation - always return false, as we're never going to display a route */
     @Override
     protected boolean isRouteDisplayed() {
         return (false);
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_S) {
-            map.setSatellite(!map.isSatellite());
-            return (true);
-        } else if (keyCode == KeyEvent.KEYCODE_Z) {
-            map.displayZoomControls(true);
-            return (true);
-        }
-
-        return (super.onKeyDown(keyCode, event));
-    }
-
+    /* Implements double-tap to zoom */
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
@@ -139,7 +134,7 @@ public class Omnimap extends MapActivity {
                 // Double tap
                 lastTouchTime = -1;
                 map.getController().zoomInFixing((int) ev.getX(),
-                        (int) ev.getY());
+                (int) ev.getY());
             } else {
                 // Too slow
                 lastTouchTime = thisTime;

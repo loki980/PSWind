@@ -41,7 +41,7 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
     private OverlayItem item = null;
     private Context ctx;
 
-    public WindSensorsOverlay(Context context, MapView map, Drawable marker, SensorDataXMLHandler mySensorDataXMLHandler) {
+    public WindSensorsOverlay(Context context, MapView map, Drawable marker, WindSensorsDataXMLHandler mySensorDataXMLHandler) {
         super(marker);
         this.marker = marker;
         this.map = map;

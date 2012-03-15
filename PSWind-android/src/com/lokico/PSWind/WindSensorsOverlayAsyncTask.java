@@ -22,46 +22,108 @@ import android.widget.Toast;
 
 import com.google.android.maps.MapView;
 
-public class LoadMapItems extends AsyncTask<Object, Object, Object> {
-    private ProgressDialog dlg;
+public class WindSensorsOverlayAsyncTask extends AsyncTask<Object, Object, Object> {
     private Context ctx;
     private MapView map;
     private Omnimap omap;
     private Drawable marker;
-    private SensorDataXMLHandler mySensorDataXMLHandler = null;
+    private WindSensorsDataXMLHandler myWindSensorDataXMLHandler = null;
     private Boolean failed = false;
     private Boolean asyncTaskRunning = false;
 
-    public LoadMapItems(Context context, MapView map) {
+    public WindSensorsOverlayAsyncTask(Context context, MapView map) {
         ctx = context;
         this.map = map;
         omap = (Omnimap)ctx;
     }
-
+    
+    //Here's a runnable/handler combo
+    private Runnable mMyRunnable = new Runnable() {
+        public void run() {
+            new WindSensorsOverlayAsyncTask(ctx, map).execute((Object)null);
+        }
+    };
+    
     @Override
-    protected void onPreExecute() {
-        dlg = new ProgressDialog(ctx);
-        dlg.setMessage("Loading....");
-        super.onPreExecute();
-    }
-
-    @Override
-    protected void onPostExecute(Object result) {
-        dlg.dismiss();
-        if (result instanceof Exception) {
-            // show error message
+    protected Object doInBackground(Object... params) {
+        /* Prevents more than one background request for data */
+        if (asyncTaskRunning) {
+            return null;
         } else {
-            // display data
+            asyncTaskRunning = true;
         }
         
-        if(mySensorDataXMLHandler != null && !failed) {
+        /*
+         * Default marker for the wind sensor overlay. Will probably never be
+         * used.
+         */
+        marker = ctx.getResources().getDrawable(R.drawable.marker_no_wind);
+
+        /*
+         * Not sure what this does, but apparently things aren't drawn right if
+         * it's not set this way
+         */
+        marker.setBounds(0, 0, marker.getIntrinsicWidth(), marker.getIntrinsicHeight());
+        
+        SAXParserFactory spf;
+        
+        /* Create a URL we want to load some xml-data from. */
+        try {
+            URL url = new URL("http://windonthewater.com/api/region_wind.php?v=1&r=nw&k=TEST");
+
+            /* Get a SAXParser from the SAXPArserFactory. */
+            spf = SAXParserFactory.newInstance();
+            SAXParser sp = spf.newSAXParser();
+    
+            /* Get the XMLReader of the SAXParser we created. */
+            XMLReader xr = sp.getXMLReader();
+            
+            /* Create a new ContentHandler and apply it to the XML-Reader */
+            myWindSensorDataXMLHandler = new WindSensorsDataXMLHandler();
+            xr.setContentHandler(myWindSensorDataXMLHandler);
+    
+            URLConnection conn = url.openConnection();
+
+            // setting these timeouts ensures the client does not deadlock indefinitely
+            // when the server has problems.
+            conn.setConnectTimeout(3000);
+            conn.setReadTimeout(3000);
+            
+            /* Parse the xml-data from our URL - this will send it to myWindSensorDataXMLHandler */
+            xr.parse(new InputSource(conn.getInputStream()));
+            /* Parsing has finished. */
+            
+            failed = false;
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            failed = true;
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+            failed = true;
+        } catch (SAXException e) {
+            e.printStackTrace();
+            failed = true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            failed = true;
+        }
+
+        return null;
+    }
+
+    /* Runs after the doInBackground() completes */
+    @Override
+    protected void onPostExecute(Object result) {        
+        if(myWindSensorDataXMLHandler != null && !failed) {
             /* If there's an existing windSensorOverlay, we need to set drawables to null to prevent out of memory crashes */
             if(omap.windSensorsOverlay != null) {
                 omap.windSensorsOverlay.clearDrawables();
                 map.getOverlays().remove(omap.windSensorsOverlay);
                 System.gc();
             }
-            omap.windSensorsOverlay = new WindSensorsOverlay(ctx, map, marker, mySensorDataXMLHandler);
+            
+            /* Add the new overlay */
+            omap.windSensorsOverlay = new WindSensorsOverlay(ctx, map, marker, myWindSensorDataXMLHandler);
             map.getOverlays().add(omap.windSensorsOverlay);
             map.invalidate();
         } else {
@@ -88,85 +150,4 @@ public class LoadMapItems extends AsyncTask<Object, Object, Object> {
         
         super.onPostExecute(result);
     }
-    
-    //Here's a runnable/handler combo
-    private Runnable mMyRunnable = new Runnable()
-    {
-        public void run()
-        {
-            new LoadMapItems(ctx, map).execute((Object)null);
-        }
-    };
-    
-    @Override
-    protected Object doInBackground(Object... params) {
-        /* Prevents more than one background request for data */
-        if (asyncTaskRunning) {
-            return null;
-        } else {
-            asyncTaskRunning = true;
-        }
-        
-        /*
-         * Default marker for the wind sensor overlay. Will probably never be
-         * used.
-         */
-        marker = ctx.getResources().getDrawable(
-                R.drawable.marker_no_wind);
-
-        /*
-         * Not sure what this does, but apparently things aren't drawn right if
-         * it's not set this way
-         */
-        marker.setBounds(0, 0, marker.getIntrinsicWidth(),
-                marker.getIntrinsicHeight());
-        
-        System.out.println("new overlay incoming...");
-        
-        SAXParserFactory spf;
-        
-        /* Create a URL we want to load some xml-data from. */
-        try {
-            URL url = new URL(
-                    "http://windonthewater.com/api/region_wind.php?v=1&r=nw&k=TEST");
-
-            /* Get a SAXParser from the SAXPArserFactory. */
-            spf = SAXParserFactory.newInstance();
-            SAXParser sp = spf.newSAXParser();
-    
-            /* Get the XMLReader of the SAXParser we created. */
-            XMLReader xr = sp.getXMLReader();
-            /* Create a new ContentHandler and apply it to the XML-Reader */
-            mySensorDataXMLHandler = new SensorDataXMLHandler();
-            xr.setContentHandler(mySensorDataXMLHandler);
-    
-            URLConnection conn = url.openConnection();
-
-            // setting these timeouts ensures the client does not deadlock indefinitely
-            // when the server has problems.
-            conn.setConnectTimeout(3000);
-            conn.setReadTimeout(3000);
-            
-            /* Parse the xml-data from our URL. */
-            xr.parse(new InputSource(conn.getInputStream()));
-            /* Parsing has finished. */
-            
-            failed = false;
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            failed = true;
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-            failed = true;
-        } catch (SAXException e) {
-            e.printStackTrace();
-            failed = true;
-        } catch (IOException e) {
-            e.printStackTrace();
-            failed = true;
-        }
-
-        return null;
-    }
-
 }

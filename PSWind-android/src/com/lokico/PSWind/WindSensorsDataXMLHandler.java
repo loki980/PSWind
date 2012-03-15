@@ -4,7 +4,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class SensorDataXMLHandler extends DefaultHandler {
+public class WindSensorsDataXMLHandler extends DefaultHandler {
 
     private SensorDataSet myParsedExampleDataSet = new SensorDataSet();
 
