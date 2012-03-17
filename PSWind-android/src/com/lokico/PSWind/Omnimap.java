@@ -1,8 +1,15 @@
 package com.lokico.PSWind;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.List;
+
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -11,9 +18,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
+import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
+import com.google.android.maps.Projection;
 import com.lokico.PSWind.WindSensorsOverlay.PopupPanel;
 
 public class Omnimap extends MapActivity {
@@ -24,6 +33,47 @@ public class Omnimap extends MapActivity {
     public PopupPanel panel;
     private WindSensorsOverlayAsyncTask LoadMapItemsTask;
     public WindSensorsOverlay windSensorsOverlay = null;
+    
+    /* Only for use in checkForRegionSwitch() */
+    private Location oldLocation;
+    
+    public enum Region {
+        NORTHWEST      ("nw", 45.643502,-122.285951),
+        CALIFORNIA     ("ca", 40.051462,-122.033266),
+        MEXICO         ("mx", 1, 2),
+        HAWAII         ("hi", 1, 2),
+        TEXAS          ("tx", 1, 2),
+        MONTANA        ("mo", 1, 2),
+        GREAT_LAKES    ("gl", 1, 2),
+        LOUISIANA      ("la", 1, 2),
+        MASSACHUSETTS  ("ma", 1, 2),
+        NEW_JERSEY     ("nj", 1, 2),
+        CHESAPEAKE_BAY ("cb", 1, 2),
+        NORTH_CAROLINA ("nc", 1, 2),
+        SCG            ("gc", 1, 2),
+        FLORIDA        ("fl", 1, 2),
+        CARIBBEAN      ("cs", 1, 2);
+        //FINLAND        ("??", 1, 2);
+                
+        // telnet localhost 5554
+        // then
+        // geo fix -82.411629 28.054553
+        
+        public final String baseWindSensorURL = "http://windonthewater.com/api/region_wind.php?v=1&k=TEST&r=";
+        
+        public URL windSensorURL;
+        public final double latitude;
+        public final double longitude;
+        private Region(String RegionCode, double latitude, double longitude) {
+            try {
+                this.windSensorURL = new URL(this.baseWindSensorURL + RegionCode);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            this.longitude = longitude;
+            this.latitude = latitude;
+        }
+    }
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,6 +91,44 @@ public class Omnimap extends MapActivity {
         map.getOverlays().add(locationOverlay);
     }
 
+    private void checkForLargePanning() {
+        Projection projection = map.getProjection();
+        int y = map.getHeight() / 2; 
+        int x = map.getWidth() / 2;
+
+        GeoPoint geoPoint = projection.fromPixels(x, y);
+        double centerLatitude = (double)geoPoint.getLatitudeE6() / (double)1E6;
+        double centerLongitude = (double)geoPoint.getLongitudeE6() / (double)1E6;
+        
+        Location location = new Location("");
+        location.setLatitude(centerLatitude);
+        location.setLongitude(centerLongitude);
+        
+        if(oldLocation == null) {
+            oldLocation = location;
+        }
+        
+        /* If we're 10km different, check for region switch */
+        if(location.distanceTo(oldLocation) > 10000) {
+            checkForRegionSwitch(centerLatitude, centerLongitude);
+            oldLocation = location;
+        }
+    }
+    
+    private void checkForRegionSwitch(double latitude, double longitude) {
+        Geocoder geocoder = new Geocoder(getApplicationContext());
+        try {
+            /* Problem is that getlat/lon returns int and getfromLocation and getfromlocation expects double (float) */
+            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
+            addresses = geocoder.getFromLocation(45.643502, -122.285951, 1);
+            if(addresses != null) {
+                addresses = null;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
     private Runnable centerAroundFix = new Runnable() {
         public void run() {
             /* Jump to current location and set zoom accordingly */
@@ -116,7 +204,7 @@ public class Omnimap extends MapActivity {
 
     private void windSensorsUpdate() {
         /* Add the Wind Sensors overlay to our map.  We save the task so we can cancel it on leaving the page */
-        LoadMapItemsTask = (WindSensorsOverlayAsyncTask) new WindSensorsOverlayAsyncTask(Omnimap.this, map).execute((Object)null);
+        LoadMapItemsTask = (WindSensorsOverlayAsyncTask) new WindSensorsOverlayAsyncTask(Omnimap.this, map).execute(Region.CALIFORNIA.windSensorURL);
     }
     
     /* Required implementation - always return false, as we're never going to display a route */
@@ -139,6 +227,8 @@ public class Omnimap extends MapActivity {
                 // Too slow
                 lastTouchTime = thisTime;
             }
+        } else if (ev.getAction() == MotionEvent.ACTION_UP) {
+            checkForLargePanning();    ///  call the first block of code here
         }
 
         return super.dispatchTouchEvent(ev);

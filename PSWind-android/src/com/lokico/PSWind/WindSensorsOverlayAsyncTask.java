@@ -13,7 +13,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
@@ -22,7 +21,7 @@ import android.widget.Toast;
 
 import com.google.android.maps.MapView;
 
-public class WindSensorsOverlayAsyncTask extends AsyncTask<Object, Object, Object> {
+public class WindSensorsOverlayAsyncTask extends AsyncTask<URL, Object, Object> {
     private Context ctx;
     private MapView map;
     private Omnimap omap;
@@ -30,22 +29,24 @@ public class WindSensorsOverlayAsyncTask extends AsyncTask<Object, Object, Objec
     private WindSensorsDataXMLHandler myWindSensorDataXMLHandler = null;
     private Boolean failed = false;
     private Boolean asyncTaskRunning = false;
+    private URL url;
 
     public WindSensorsOverlayAsyncTask(Context context, MapView map) {
         ctx = context;
         this.map = map;
         omap = (Omnimap)ctx;
     }
-    
+
     //Here's a runnable/handler combo
     private Runnable mMyRunnable = new Runnable() {
         public void run() {
-            new WindSensorsOverlayAsyncTask(ctx, map).execute((Object)null);
+            new WindSensorsOverlayAsyncTask(ctx, map).execute(url);
         }
     };
-    
+
     @Override
-    protected Object doInBackground(Object... params) {
+    protected Object doInBackground(URL... urls) {
+        url = urls[0];
         /* Prevents more than one background request for data */
         if (asyncTaskRunning) {
             return null;
@@ -69,7 +70,7 @@ public class WindSensorsOverlayAsyncTask extends AsyncTask<Object, Object, Objec
         
         /* Create a URL we want to load some xml-data from. */
         try {
-            URL url = new URL("http://windonthewater.com/api/region_wind.php?v=1&r=nw&k=TEST");
+            //URL url = new URL(urls);
 
             /* Get a SAXParser from the SAXPArserFactory. */
             spf = SAXParserFactory.newInstance();
@@ -82,7 +83,7 @@ public class WindSensorsOverlayAsyncTask extends AsyncTask<Object, Object, Objec
             myWindSensorDataXMLHandler = new WindSensorsDataXMLHandler();
             xr.setContentHandler(myWindSensorDataXMLHandler);
     
-            URLConnection conn = url.openConnection();
+            URLConnection conn = urls[0].openConnection();
 
             // setting these timeouts ensures the client does not deadlock indefinitely
             // when the server has problems.
