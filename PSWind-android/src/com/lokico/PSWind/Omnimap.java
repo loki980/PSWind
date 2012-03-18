@@ -3,6 +3,7 @@ package com.lokico.PSWind;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
 
 import android.location.Address;
@@ -10,13 +11,16 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.ImageButton;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
@@ -33,65 +37,102 @@ public class Omnimap extends MapActivity {
     public PopupPanel panel;
     private WindSensorsOverlayAsyncTask LoadMapItemsTask;
     public WindSensorsOverlay windSensorsOverlay = null;
+    public final String baseWindSensorURL = "http://windonthewater.com/api/region_wind.php?v=1&k=TEST&r=";
+    public static final HashMap<String, String> regionHash = new HashMap<String, String>();
+    private Boolean firstResume = true;
+    private Handler mHandler = new Handler(Looper.getMainLooper());
+    public URL previousURL;
     
     /* Only for use in checkForRegionSwitch() */
     private Location oldLocation;
+    private String oldState = "";
     
-    public enum Region {
-        NORTHWEST      ("nw", 45.643502,-122.285951),
-        CALIFORNIA     ("ca", 40.051462,-122.033266),
-        MEXICO         ("mx", 1, 2),
-        HAWAII         ("hi", 1, 2),
-        TEXAS          ("tx", 1, 2),
-        MONTANA        ("mo", 1, 2),
-        GREAT_LAKES    ("gl", 1, 2),
-        LOUISIANA      ("la", 1, 2),
-        MASSACHUSETTS  ("ma", 1, 2),
-        NEW_JERSEY     ("nj", 1, 2),
-        CHESAPEAKE_BAY ("cb", 1, 2),
-        NORTH_CAROLINA ("nc", 1, 2),
-        SCG            ("gc", 1, 2),
-        FLORIDA        ("fl", 1, 2),
-        CARIBBEAN      ("cs", 1, 2);
-        //FINLAND        ("??", 1, 2);
-                
-        // telnet localhost 5554
-        // then
-        // geo fix -82.411629 28.054553
-        
-        public final String baseWindSensorURL = "http://windonthewater.com/api/region_wind.php?v=1&k=TEST&r=";
-        
-        public URL windSensorURL;
-        public final double latitude;
-        public final double longitude;
-        private Region(String RegionCode, double latitude, double longitude) {
-            try {
-                this.windSensorURL = new URL(this.baseWindSensorURL + RegionCode);
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            }
-            this.longitude = longitude;
-            this.latitude = latitude;
-        }
-    }
+
+    // telnet localhost 5554
+    // then
+    // Florida!
+    // geo fix -82.411629 28.054553
+    // Jetty!
+    // geo fix -122.23068 48.0064
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.omnimap);
 
+        /* Populate our regions map */
+        createStateHashMap();
+        
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         
         map = (MapView) findViewById(R.id.map);
         map.setBuiltInZoomControls(true);
 
-        /* Add a marker indicating the user's location */
+        /* We need to enable the overlay for use with the location button later */
         locationOverlay = new MyLocationOverlay(this, map);
-        locationOverlay.runOnFirstFix(centerAroundFix);
-        map.getOverlays().add(locationOverlay);
+        
+        /* This refreshes the wind overlay for the first time.  If we don't delay, the map won't draw until the data is ready. */
+        delayedCheckForLargePanning();
+        
+        /* Add location button to upper right of screen and update location/refresh data on click */
+        ImageButton locButton = (ImageButton)findViewById(R.id.googlemaps_select_location);
+        locButton.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+                map.getOverlays().add(locationOverlay);
+                locationOverlay.runOnFirstFix(centerAroundFix);
+                locationOverlay.enableMyLocation();
+                delayedCheckForLargePanning();
+            }
+        });
     }
 
+    /* Correlates state (and sometimes country, in the case of Mexico) names with API abbreviations */
+    private void createStateHashMap() {
+        regionHash.put("British Colombia",  "nw");
+        regionHash.put("Washington",        "nw");
+        regionHash.put("Oregon",            "nw");
+        regionHash.put("California",        "ca");
+        regionHash.put("Mexico",            "mx");
+        regionHash.put("Hawaii",            "hi");
+        regionHash.put("Texas",             "tx");
+        regionHash.put("Montana",           "mt");
+        regionHash.put("Illinois",          "gl");
+        regionHash.put("Wisconsin",         "gl");
+        regionHash.put("Indiana",           "gl");
+        regionHash.put("Michigan",          "gl");
+        regionHash.put("Ohio",              "gl");
+        regionHash.put("Ontario",           "gl");
+        regionHash.put("Minnesota",         "gl");
+        regionHash.put("Louisiana",         "la");
+        regionHash.put("Massachusetts",     "ma");
+        regionHash.put("Rhode Island",      "ma");
+        regionHash.put("New York",          "ny");
+        regionHash.put("New Jersey",        "nj");
+        regionHash.put("Delaware",          "nj");
+        regionHash.put("Maryland",          "cb");
+        regionHash.put("Virginia",          "cb");
+        regionHash.put("North Carolina",    "nc");
+        regionHash.put("South Carolina",    "gc");
+        regionHash.put("Georgia",           "gc");
+        regionHash.put("Florida",           "fl");
+        /* I don't know how to handle the carribean yet... */
+        //regionHash.put("","cs");
+    }
+    
+    public void delayedCheckForLargePanning(){
+        Handler myHandler = new Handler();
+        // Delay loading the overlay by 100 ms to allow the map to display immediately.
+        myHandler.postDelayed(checkForLargePanningRunnable, 100);
+    }
+    
+    private Runnable checkForLargePanningRunnable = new Runnable() {
+        public void run() {
+            checkForLargePanning();
+        }
+    };
+    
     private void checkForLargePanning() {
+        /* Get the lat/lon of the center of the MapView */
         Projection projection = map.getProjection();
         int y = map.getHeight() / 2; 
         int x = map.getWidth() / 2;
@@ -104,12 +145,8 @@ public class Omnimap extends MapActivity {
         location.setLatitude(centerLatitude);
         location.setLongitude(centerLongitude);
         
-        if(oldLocation == null) {
-            oldLocation = location;
-        }
-        
         /* If we're 10km different, check for region switch */
-        if(location.distanceTo(oldLocation) > 10000) {
+        if(oldLocation == null || location.distanceTo(oldLocation) > 10000) {
             checkForRegionSwitch(centerLatitude, centerLongitude);
             oldLocation = location;
         }
@@ -118,11 +155,21 @@ public class Omnimap extends MapActivity {
     private void checkForRegionSwitch(double latitude, double longitude) {
         Geocoder geocoder = new Geocoder(getApplicationContext());
         try {
-            /* Problem is that getlat/lon returns int and getfromLocation and getfromlocation expects double (float) */
+            /* If the current state doesn't match the old state, switch.  Should probably compare by regions, not by states
+             * since changing from michigan->indiana or washington->oregon causes a toast */
             List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
-            addresses = geocoder.getFromLocation(45.643502, -122.285951, 1);
-            if(addresses != null) {
-                addresses = null;
+            if((addresses.size() > 0) && (addresses.get(0).getAdminArea() != null) &&
+                    !addresses.get(0).getAdminArea().equals(oldState)){
+                /* Mexico has states, should probably list them all out in the hashmap instead of doing this hack */
+                if(addresses.get(0).getCountryName().equals("Mexico")) {
+                    if(!oldState.equals("Mexico")) {
+                        oldState = "Mexico";
+                        queueWindSensorsUpdate();
+                    }
+                } else {
+                    oldState = addresses.get(0).getAdminArea();
+                    queueWindSensorsUpdate();
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -134,6 +181,14 @@ public class Omnimap extends MapActivity {
             /* Jump to current location and set zoom accordingly */
             map.getController().animateTo(locationOverlay.getMyLocation());
             map.getController().setZoom(12);
+            locationOverlay.disableMyLocation();
+            /* This is a different thread.  I need to call this from a thread that has a 'Looper' prepared. */
+            mHandler.post(new Runnable() {
+                public void run() {
+                    /* We delay to allow the new location to update. */
+                    delayedCheckForLargePanning();
+                }
+            });
         }
     };
     
@@ -149,9 +204,13 @@ public class Omnimap extends MapActivity {
     @Override
     public void onResume() {
         super.onResume();
-
-        locationOverlay.enableMyLocation();
         
+        if(firstResume) {
+            firstResume = false;
+            return;
+        }
+        
+        /* This will refresh the overlay */
         queueWindSensorsUpdate();
     }
 
@@ -163,8 +222,6 @@ public class Omnimap extends MapActivity {
         if(panel != null) {
             panel.hide();
         }
-        
-        locationOverlay.disableMyLocation();
     }
     
     /* Handles creation of menu */
@@ -204,8 +261,13 @@ public class Omnimap extends MapActivity {
 
     private void windSensorsUpdate() {
         /* Add the Wind Sensors overlay to our map.  We save the task so we can cancel it on leaving the page */
-        LoadMapItemsTask = (WindSensorsOverlayAsyncTask) new WindSensorsOverlayAsyncTask(Omnimap.this, map).execute(Region.CALIFORNIA.windSensorURL);
+        try {
+            LoadMapItemsTask = (WindSensorsOverlayAsyncTask) new WindSensorsOverlayAsyncTask(Omnimap.this, map).execute(new URL(baseWindSensorURL+regionHash.get(oldState)));
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
     }
+    
     
     /* Required implementation - always return false, as we're never going to display a route */
     @Override
@@ -242,15 +304,15 @@ public class Omnimap extends MapActivity {
         if(!LoadMapItemsTask.isCancelled()) {
             LoadMapItemsTask.cancel(true);
         }
+        unbindDrawables(findViewById(R.id.mapParent));
+    }
+
+    private void unbindDrawables(View view) {
         /* These next three lines are an attempt to prevent "java.lang.OutOfMemoryError: bitmap size exceeds VM budget"
          * Details here:
          * http://stackoverflow.com/questions/1949066/java-lang-outofmemoryerror-bitmap-size-exceeds-vm-budget-android */
         map.getOverlays().clear();
-        unbindDrawables(findViewById(R.id.mapParent));
-        System.gc();
-    }
-
-    private void unbindDrawables(View view) {
+        
         if (view.getBackground() != null) {
             view.getBackground().setCallback(null);
         }
@@ -260,5 +322,6 @@ public class Omnimap extends MapActivity {
             }
             ((ViewGroup) view).removeAllViews();
         }
+        System.gc();
     }
 }

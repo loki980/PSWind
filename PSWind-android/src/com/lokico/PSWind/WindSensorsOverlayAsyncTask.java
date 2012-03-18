@@ -29,7 +29,7 @@ public class WindSensorsOverlayAsyncTask extends AsyncTask<URL, Object, Object> 
     private WindSensorsDataXMLHandler myWindSensorDataXMLHandler = null;
     private Boolean failed = false;
     private Boolean asyncTaskRunning = false;
-    private URL url;
+    private Boolean suppressRefreshedMsgOnce;
 
     public WindSensorsOverlayAsyncTask(Context context, MapView map) {
         ctx = context;
@@ -40,19 +40,27 @@ public class WindSensorsOverlayAsyncTask extends AsyncTask<URL, Object, Object> 
     //Here's a runnable/handler combo
     private Runnable mMyRunnable = new Runnable() {
         public void run() {
-            new WindSensorsOverlayAsyncTask(ctx, map).execute(url);
+            new WindSensorsOverlayAsyncTask(ctx, map).execute(omap.previousURL);
         }
     };
 
     @Override
     protected Object doInBackground(URL... urls) {
-        url = urls[0];
         /* Prevents more than one background request for data */
         if (asyncTaskRunning) {
             return null;
         } else {
             asyncTaskRunning = true;
         }
+        
+        /* If we're refreshing the same data, display the toast, as we want to inform the
+         * user something actually happened, even though it might not look like it */
+        if(omap.previousURL == null || !omap.previousURL.sameFile(urls[0])){
+            suppressRefreshedMsgOnce = true;
+        } else {
+            suppressRefreshedMsgOnce = false;
+        }
+        omap.previousURL = urls[0];
         
         /*
          * Default marker for the wind sensor overlay. Will probably never be
@@ -142,8 +150,11 @@ public class WindSensorsOverlayAsyncTask extends AsyncTask<URL, Object, Object> 
             Handler myHandler = new Handler();
             myHandler.postDelayed(mMyRunnable, 3000);
         } else {
+            if(!suppressRefreshedMsgOnce || (omap.getOverlayRetries() > 0)) {
+                Toast.makeText(ctx, "Sensor data refreshed", Toast.LENGTH_SHORT).show();
+            }
+            suppressRefreshedMsgOnce = false;
             omap.setOverlayRetries(0);
-            Toast.makeText(ctx, "Sensor data refreshed", Toast.LENGTH_SHORT).show();
         }
         
         /* Allow the task to be run again */
