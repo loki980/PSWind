@@ -35,7 +35,7 @@ public class Omnimap extends MapActivity {
     private long lastTouchTime = -1;
     private int overlayRetries = 0;
     public PopupPanel panel;
-    private WindSensorsOverlayAsyncTask LoadMapItemsTask;
+    private WindSensorsOverlayAsyncTask LoadMapItemsTask = null;
     public WindSensorsOverlay windSensorsOverlay = null;
     public final String baseWindSensorURL = "http://windonthewater.com/api/region_wind.php?v=1&k=TEST&r=";
     public static final HashMap<String, String> regionHash = new HashMap<String, String>();
@@ -301,7 +301,7 @@ public class Omnimap extends MapActivity {
         super.onDestroy();
     
         /* Cancel any background fetches for data */
-        if(!LoadMapItemsTask.isCancelled()) {
+        if(LoadMapItemsTask != null && !LoadMapItemsTask.isCancelled()) {
             LoadMapItemsTask.cancel(true);
         }
         unbindDrawables(findViewById(R.id.mapParent));

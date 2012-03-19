@@ -13,11 +13,11 @@
 	/>
     <ImageView
         android:id="@+id/myimg" 
-        android:layout_width="162dip"
-        android:layout_height="54dip"
+        android:layout_width="218dip"
+        android:layout_height="59dip"
         android:scaleType="fitXY"
         android:layout_centerHorizontal="true"
-        android:background="@drawable/pswind"
+        android:background="@drawable/windhunter"
     />
     
     <LinearLayout
