@@ -6,12 +6,17 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.Signature;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -42,6 +47,7 @@ public class Omnimap extends MapActivity {
     private Boolean firstResume = true;
     private Handler mHandler = new Handler(Looper.getMainLooper());
     public URL previousURL;
+    private static Boolean _isDebugBuild = null;
     
     /* Only for use in checkForRegionSwitch() */
     private Location oldLocation;
@@ -58,7 +64,11 @@ public class Omnimap extends MapActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.omnimap);
+        if(isDebugBuild(this)) {
+            setContentView(R.layout.omnimap_debug);
+        } else {
+            setContentView(R.layout.omnimap);
+        }
 
         /* Populate our regions map */
         createStateHashMap();
@@ -323,5 +333,28 @@ public class Omnimap extends MapActivity {
             ((ViewGroup) view).removeAllViews();
         }
         System.gc();
+    }
+    
+    // Define the debug signature hash (Android default debug cert). Code from sigs[i].hashCode()
+    protected final static int DEBUG_SIGNATURE_HASH = 227005335;
+
+    // Checks if this apk was built using the debug certificate
+    // Used e.g. for Google Maps API key determination (from: http://whereblogger.klaki.net/2009/10/choosing-android-maps-api-key-at-run.html)
+    public static Boolean isDebugBuild(Context context) {
+        if (_isDebugBuild == null) {
+            try {
+                _isDebugBuild = false;
+                Signature [] sigs = context.getPackageManager().getPackageInfo(context.getPackageName(), PackageManager.GET_SIGNATURES).signatures;
+                for (int i = 0; i < sigs.length; i++) {
+                    if (sigs[i].hashCode() == DEBUG_SIGNATURE_HASH) {
+                        _isDebugBuild = true;
+                        break;
+                    }
+                }
+            } catch (NameNotFoundException e) {
+                e.printStackTrace();
+            }      
+        }
+        return _isDebugBuild;
     }
 }

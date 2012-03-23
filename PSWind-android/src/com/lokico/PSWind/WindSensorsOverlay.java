@@ -297,14 +297,10 @@ public class WindSensorsOverlay extends ItemizedOverlay<OverlayItem> {
                                             + item.getTitle() + "&d=" + windGraphDaysAgo);
                         }
                     }  else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-                        if(++windGraphDaysAgo > 5) {
-                            windGraphDaysAgo = 5;
-                        } else {
-                            /* Load the correct graph for the wind sensor */
-                            ((LoaderImageView) view.findViewById(R.id.windGraph))
-                                    .setImageDrawable("http://windonthewater.com/wg.php?s="
-                                            + item.getTitle() + "&d=" + windGraphDaysAgo);
-                        }
+                        /* Load the correct graph for the wind sensor */
+                        ((LoaderImageView) view.findViewById(R.id.windGraph))
+                                .setImageDrawable("http://windonthewater.com/wg.php?s="
+                                        + item.getTitle() + "&d=" + windGraphDaysAgo);
                     }
                 } catch (Exception e) {
                     // nothing
