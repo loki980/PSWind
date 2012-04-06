@@ -16,7 +16,6 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -24,7 +23,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ImageButton;
 
 import com.google.android.maps.GeoPoint;
@@ -73,7 +71,7 @@ public class Omnimap extends MapActivity {
         /* Populate our regions map */
         createStateHashMap();
         
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        Launcher.setFullScreen(this, Launcher.FULLSCREEN);
         
         map = (MapView) findViewById(R.id.map);
         map.setBuiltInZoomControls(true);

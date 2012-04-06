@@ -23,7 +23,7 @@
     <LinearLayout
         android:id="@+id/middle_bar"
         android:layout_width="fill_parent"
-        android:layout_height="140dp"
+        android:layout_height="60dp"
         android:layout_weight="0"
     />
 
@@ -32,7 +32,13 @@
         android:layout_width="250px"
         android:textSize="24px"
         android:layout_height="95px">
-    </Button>    
+    </Button>  
+    
+    <Button android:text="NW Kitemap"
+        android:id="@+id/ButtonNWKitemap"
+        android:layout_width="250px"
+        android:textSize="24px"
+        android:layout_height="95px" />
 
     <Button android:text="TJ's - Seattle"
         android:id="@+id/ButtonTJ_Jetty"

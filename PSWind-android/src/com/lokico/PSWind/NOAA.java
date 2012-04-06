@@ -14,7 +14,6 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.WindowManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -24,7 +23,7 @@ public class NOAA extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.tj_northsound);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        Launcher.setFullScreen(this, Launcher.FULLSCREEN);
 
         WebView engine = (WebView) findViewById(R.id.web_engine);
         engine.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE);
