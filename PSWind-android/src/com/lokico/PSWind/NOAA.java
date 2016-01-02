@@ -72,7 +72,7 @@ public class NOAA extends Activity {
                 /* Fix broken whitespace */
                 html = html.replaceAll("&nbsp", "&nbsp;");
                 
-                view.loadDataWithBaseURL("http://nwwind.net", html, "text/html", "UTF-8", "about:blank");
+                view.loadDataWithBaseURL("http://nwswind.net", html, "text/html", "UTF-8", "about:blank");
             } catch (ClientProtocolException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
