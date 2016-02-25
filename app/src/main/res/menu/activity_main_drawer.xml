@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_omni_map"
+            android:icon="@drawable/ic_action_settings"
+            android:title="@string/title_activity_omni_map" />
+        <item
+            android:id="@+id/nav_tjs_seattle"
+            android:icon="@drawable/ic_action_settings"
+            android:title="@string/title_activity_tjs_seattle" />
+        <item
+            android:id="@+id/nav_tjs_north_sound"
+            android:icon="@drawable/ic_action_settings"
+            android:title="@string/title_activity_tjs_north_sound" />
+        <item
+            android:id="@+id/nav_noaa"
+            android:icon="@drawable/ic_action_settings"
+            android:title="@string/title_activity_noaa" />
+    </group>
+
+
+
+</menu>
