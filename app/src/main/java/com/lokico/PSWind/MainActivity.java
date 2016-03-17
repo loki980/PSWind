@@ -1,4 +1,4 @@
-package com.lokico.pwwindmatdesact;
+package com.lokico.PSWind;
 
 import android.content.Intent;
 import android.os.Bundle;

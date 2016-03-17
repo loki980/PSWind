@@ -1,4 +1,4 @@
-package com.lokico.pwwindmatdesact;
+package com.lokico.PSWind;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

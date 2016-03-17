@@ -1,4 +1,4 @@
-package com.lokico.pwwindmatdesact;
+package com.lokico.PSWind;
 
 import org.junit.Test;
 
