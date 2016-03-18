@@ -13,4 +13,8 @@ public class OmniMap extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_omni_map);
     }
+
+    static boolean isActivityImplemented() {
+        return false;
+    }
 }

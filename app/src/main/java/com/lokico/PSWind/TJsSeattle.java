@@ -11,4 +11,7 @@ public class TJsSeattle extends AppCompatActivity {
         setContentView(R.layout.activity_tjs_seattle);
     }
 
+    static boolean isActivityImplemented() {
+        return false;
+    }
 }

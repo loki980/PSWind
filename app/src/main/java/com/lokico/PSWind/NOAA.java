@@ -10,4 +10,8 @@ public class NOAA extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_noa);
     }
+
+    static boolean isActivityImplemented() {
+        return false;
+    }
 }

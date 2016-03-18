@@ -9,4 +9,8 @@ public class TJsNorthSound extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tjs_north_sound);
     }
+
+    static boolean isActivityImplemented() {
+        return false;
+    }
 }
