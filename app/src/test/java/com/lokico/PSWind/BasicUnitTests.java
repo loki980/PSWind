@@ -10,21 +10,21 @@ import static org.junit.Assert.*;
 public class BasicUnitTests {
     @Test
     public void isNoaaImplemented() {
-        assertEquals(true, NOAA.isActivityImplemented());
+        assertTrue(NOAA.isActivityImplemented());
     }
 
     @Test
     public void isOmniMapImplemented() {
-        assertEquals(true, OmniMap.isActivityImplemented());
+        assertTrue(OmniMap.isActivityImplemented());
     }
 
     @Test
     public void isTJsSeattleImplemented() {
-        assertEquals(true, TJsSeattle.isActivityImplemented());
+        assertTrue(TJsSeattle.isActivityImplemented());
     }
 
     @Test
     public void isTJsNorthSoundImplemented() {
-        assertEquals(true, TJsNorthSound.isActivityImplemented());
+        assertTrue(TJsNorthSound.isActivityImplemented());
     }
 }

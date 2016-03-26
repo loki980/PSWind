@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/tj_seattle"
+    android:id="@+id/display_tjs_seattle"
     tools:context="com.lokico.PSWind.TJsSeattle">
 
     <!-- The primary full-screen view. This can be replaced with whatever view
