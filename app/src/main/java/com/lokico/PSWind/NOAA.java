@@ -1,9 +1,9 @@
 package com.lokico.PSWind;
 
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -17,6 +17,7 @@ import com.android.volley.toolbox.Volley;
 
 public class NOAA extends AppCompatActivity {
 
+    private static final String TAG = "NOAA";
     RequestQueue mRequestQueue;
 
     @Override
@@ -55,37 +56,19 @@ public class NOAA extends AppCompatActivity {
             return true;
         }
 
-        @Override
-        public void onPageStarted(WebView view, String url, Bitmap favicon) {
-        }
-
-        @Override
-        public void onPageFinished(WebView view, String url) {
-        }
-
         public void loadModifiedURL(final WebView view, String url) {
             // Request a string response from the provided URL.
             StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                     new Response.Listener<String>() {
                         @Override
                         public void onResponse(String html) {
-                            // Note: (?s) sets the mode to include line breaks
-                            // Remove first row in table with the NWWind string
-                            // and alternate forecasts
-                            html = html.replaceAll("(?s)<td class=alignleft_bottom_border colspan=3>.*?</td>", "");
-                            /* Remove tracking scripts */
-                            html = html.replaceAll("(?s)<script>.*?</script>", "");
-                            /* Remove broken BC links */
-                            html = html.replaceAll("(?s)BC:.*?State:", "State:");
-                            /* Fix broken whitespace */
-                            html = html.replaceAll("&nbsp", "&nbsp;");
-
+                            html = modifyRawResponse(html);
                             view.loadDataWithBaseURL("http://nwwind.net", html, "text/html", "UTF-8", "about:blank");
                         }
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    // Log error TODO
+                    Log.d(TAG, "onErrorResponse " + error.toString());
                 }
             });
 
@@ -96,6 +79,24 @@ public class NOAA extends AppCompatActivity {
     }
 
     static boolean isActivityImplemented() {
-        return false;
+        return true;
+    }
+
+    // Convert raw response for a NOAA request
+    // Remove unwanted links and text
+    static String modifyRawResponse(final String rawHTML) {
+        String modHTML = new String(rawHTML);
+        // Note: (?s) sets the mode to include line breaks
+        // Remove first row in table with the NWWind string
+        // and alternate forecasts
+        modHTML = modHTML.replaceAll("(?s)<td class=alignleft_bottom_border colspan=3>.*?</td>", "");
+        // Remove tracking scripts
+        modHTML = modHTML.replaceAll("(?s)<script>.*?</script>", "");
+        // Remove broken BC links
+        modHTML = modHTML.replaceAll("(?s)BC:.*?State:", "State:");
+        // Fix broken whitespace
+        modHTML = modHTML.replaceAll("&nbsp", "&nbsp;");
+
+        return modHTML;
     }
 }
