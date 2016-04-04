@@ -85,10 +85,16 @@ public class NOAA extends AppCompatActivity {
     // Convert raw response for a NOAA request
     // Remove unwanted links and text
     static String modifyRawResponse(final String rawHTML) {
+        // Validate input
+        if (rawHTML == null) {
+            return null;
+        }
+
         String modHTML = new String(rawHTML);
         // Note: (?s) sets the mode to include line breaks
-        // Remove first row in table with the NWWind string
-        // and alternate forecasts
+        // Remove NWwind.net
+        modHTML = modHTML.replaceAll("(?s)<td class=alignleft colspan=3>.*?</td>", "");
+        // Remove and alternate forecasts
         modHTML = modHTML.replaceAll("(?s)<td class=alignleft_bottom_border colspan=3>.*?</td>", "");
         // Remove tracking scripts
         modHTML = modHTML.replaceAll("(?s)<script>.*?</script>", "");

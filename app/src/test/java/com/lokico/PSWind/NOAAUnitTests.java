@@ -18,6 +18,25 @@ public class NOAAUnitTests {
         assertTrue(isConversionSuccess);
     }
 
+    @Test
+    public void isNoaResponseContentConvertedForNull() {
+        String rawResponse = null;
+        String expectedConvertedResponse = null;
+        String convertedResponse = NOAA.modifyRawResponse(rawResponse);
+        boolean isConversionSuccess =
+                convertedResponse == null;
+        assertTrue(isConversionSuccess);
+    }
+    @Test
+    public void isNoaResponseContentConvertedForEmptyString() {
+        String rawResponse = "";
+        String expectedConvertedResponse = "";
+        String convertedResponse = NOAA.modifyRawResponse(rawResponse);
+        boolean isConversionSuccess =
+                convertedResponse.equals(expectedConvertedResponse);
+        assertTrue(isConversionSuccess);
+    }
+
     // An example raw response from http://www.nwwind.net/regionfcst.php?fcst=70
     static final String RAW_RESPONSE_1 =
             "\n" +
