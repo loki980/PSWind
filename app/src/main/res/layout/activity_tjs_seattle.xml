@@ -1,11 +1,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/display_tjs_seattle"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/tj_seattle"
     android:orientation="vertical"
-    android:id="@+id/display_tjs_seattle"
     tools:context="com.lokico.PSWind.TJsSeattle">
+
     <WebView
         android:id="@+id/webview"
         android:layout_width="fill_parent"
