@@ -5,7 +5,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 /**
- * Created by Jeff on 3/31/2016.
+ * Local unit tests for the NOAA <code>Activity</code>.
  */
 public class NOAAUnitTests {
     @Test
@@ -27,6 +27,7 @@ public class NOAAUnitTests {
                 convertedResponse == null;
         assertTrue(isConversionSuccess);
     }
+
     @Test
     public void isNoaResponseContentConvertedForEmptyString() {
         String rawResponse = "";

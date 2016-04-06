@@ -40,11 +40,6 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
 import static com.lokico.PSWind.NavigationViewActions.navigateTo;
 
-/**
- * Created by Jeff on 3/24/2016.
- */
-
-
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class AppNavigationTest {

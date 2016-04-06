@@ -15,6 +15,9 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+/**
+ * The NOAA forecast <code>Activity</code>.
+ */
 public class NOAA extends AppCompatActivity {
 
     private static final String TAG = "NOAA";
@@ -78,12 +81,21 @@ public class NOAA extends AppCompatActivity {
         }
     }
 
+    /**
+     * A unit test helper method.
+     *
+     * @return <code>true</code> if detailed testing can proceed.
+     */
     static boolean isActivityImplemented() {
         return true;
     }
 
-    // Convert raw response for a NOAA request
-    // Remove unwanted links and text
+    /**
+     * Filters unwanted text from the raw HTTP response from the NWWind site.
+     *
+     * @param rawHTML
+     * @return Filtered response to send to the WebView
+     */
     static String modifyRawResponse(final String rawHTML) {
         // Validate input
         if (rawHTML == null) {
