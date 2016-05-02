@@ -1,9 +1,5 @@
 package com.lokico.PSWind;
 
-/**
- * Created by Jeff on 3/25/2016.
- */
-
 import org.hamcrest.Matcher;
 
 import android.content.res.Resources.NotFoundException;
