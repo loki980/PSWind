@@ -30,6 +30,8 @@ dependencies {
     compile "com.github.bumptech.glide:glide:3.6.1"
     compile "com.android.support.test.espresso:espresso-idling-resource:2.2.1"
     compile 'com.android.volley:volley:1.0.0'
+    // Note: play-services introduces a huge API that may require dealing with
+    // the 64K limitation. So try to just select the min services.
     compile 'com.google.android.gms:play-services-maps:8.4.0'
 
     // Dependencies for local unit tests
