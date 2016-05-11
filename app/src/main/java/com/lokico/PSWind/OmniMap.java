@@ -7,6 +7,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -39,12 +40,16 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.getUiSettings().setCompassEnabled(true);
 
         // Add a marker at Jetty and move the camera
         LatLng jetty = new LatLng(48.008154, -122.229781);
         mMap.addMarker(new MarkerOptions().position(jetty).title("Marker in Jetty"));
+        addMarkers(mMap);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(jetty));
-        mMap.moveCamera(CameraUpdateFactory.zoomTo((float) 12.0));
+        //addMarkers(mMap);
+        mMap.moveCamera(CameraUpdateFactory.zoomTo((float) 10.0));
     }
 
     /**
@@ -54,5 +59,20 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
      */
     static boolean isActivityImplemented() {
         return false;
+    }
+
+    static private String getRawSensorData() {
+        return null;
+    }
+
+    static private void parseRawSensorData(String rawSensorData) {
+
+    }
+
+    static private void addMarkers(GoogleMap map) {
+        //lat="48.0194" lng="-122.334
+        LatLng jetty = new LatLng(48.0194, -122.334);
+        map.addMarker(new MarkerOptions().position(jetty).title("Hat Island")
+        .icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_high_wind)));
     }
 }
