@@ -35,7 +35,7 @@ public class WindSensor {
             mBaseIconName += "marker_no_wind";
         }
 
-        mSpeedIconName = "drawable/windspeed";
+        mSpeedIconName = "windspeed";
         if (mSpeed >= 0 && mSpeed < 100) {
             mSpeedIconName = mSpeedIconName + Integer.toString((int)mSpeed);
         }

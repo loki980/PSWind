@@ -2,6 +2,11 @@ package com.lokico.PSWind;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Matrix;
+import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 
@@ -91,31 +96,53 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
         *
          */
         //WindSensor windSensor = new WindSensor(lat, lon, title, dir, speed)
-        windSensors.add(new WindSensor((float) 48.0194,(float)-122.334, "Hat Island", 225, 1));
-        windSensors.add(new WindSensor((float) 48.7767,(float)-122.562, "Locust Beach", 337, 3));
-        windSensors.add(new WindSensor((float) 48.4639,(float)-122.468, "Padilla Bay", 315, 4));
-        windSensors.add(new WindSensor((float) 48.3492,(float)-122.651, "Whidbey Island", 135, 7));
-        windSensors.add(new WindSensor((float) 48.0035,(float)-122.228, "Jetty Island", 90, 6));
+        windSensors.add(new WindSensor((float) 48.0194,(float)-122.334, "Hat Island", 225, 10));
+        windSensors.add(new WindSensor((float) 48.7767,(float)-122.562, "Locust Beach", 337, 15));
+        windSensors.add(new WindSensor((float) 48.4639,(float)-122.468, "Padilla Bay", 315, 20));
+        windSensors.add(new WindSensor((float) 48.3492,(float)-122.651, "Whidbey Island", 135,25));
+        windSensors.add(new WindSensor((float) 48.0035,(float)-122.228, "Jetty Island", 90, 30));
     }
 
     static private void addMarkers(Context context, GoogleMap map, List<WindSensor> windSensorList) {
-        //lat="48.0194" lng="-122.334
-        //LatLng jetty = new LatLng(48.0194, -122.334);
-        //map.addMarker(new MarkerOptions().position(jetty).title("Hat Island")
-        //.icon(BitmapDescriptorFactory.fromResource(R.drawable.marker_high_wind)));
         if (windSensorList != null && !windSensorList.isEmpty()) {
             for (WindSensor windSensor : windSensorList) {
-                // Add sensors to map
-                String resIdName = windSensor.getBaseIconName();
+                // Get params
+                String resIdBaseName = windSensor.getBaseIconName();
+                String resIdSpeedName = windSensor.getSpeedIconName();
                 String packageName = context.getPackageName();
                 Resources resources = context.getResources();
+
+                Matrix matrix = new Matrix();
+
+                Bitmap bmpBase = BitmapFactory.decodeResource(
+                        resources,
+                        resources.getIdentifier(
+                                resIdBaseName, "drawable", packageName));
+
+                // Create a bitmap for our composite bitmap
+                Bitmap b = Bitmap.createBitmap(128, 128, Bitmap.Config.ARGB_8888);
+                Canvas c = new Canvas(b);
+                matrix.setRotate(windSensor.getDirection(), 64, 64);
+
+                // Draw the wind sensor's color and direction
+                c.drawBitmap(BitmapFactory.decodeResource(
+                        resources,
+                        resources.getIdentifier(
+                                resIdBaseName, "drawable", packageName)),
+                        matrix,new Paint());
+                // Draw the wind sensor's wind speed
+                c.drawBitmap(BitmapFactory.decodeResource(
+                        resources,
+                        resources.getIdentifier(
+                                resIdSpeedName, "drawable", packageName)),
+                        0,0,new Paint());
+
+                // Add sensor marker to the map
                 map.addMarker(new MarkerOptions()
                         .position(windSensor.getLatLng())
                         .title(windSensor.getTitle())
-                        .rotation(windSensor.getDirection())
                         .icon(BitmapDescriptorFactory
-                                .fromResource(resources.getIdentifier(
-                                        resIdName, "drawable", packageName))));
+                                .fromBitmap(b)));
             }
         }
     }
