@@ -3,12 +3,12 @@ package com.lokico.PSWind;
 import com.google.android.gms.maps.model.LatLng;
 
 public class WindSensor {
-    LatLng mLatLng;
-    String mTitle;
-    String mBaseIconName;
-    float mDirection;
-    float mSpeed;
-    String mSpeedIconName;
+    private LatLng mLatLng;
+    private String mTitle;
+    private String mBaseIconName;
+    private float mDirection;
+    private float mSpeed;
+    private String mSpeedIconName;
 
     // TODO Consider using a builder pattern
     public WindSensor(float lat, float lon, String title, float direction,
@@ -22,22 +22,21 @@ public class WindSensor {
         //mBaseIconName = "drawable/";
         mBaseIconName = "";
         if (mSpeed > 27) {
-                        /* Prefix for red arrow */
-            mBaseIconName += "marker_high_wind";
+            mBaseIconName += "marker_high_wind"; // red arrow
         } else if (mSpeed > 19) {
-                        /* Prefix for orange arrow */
-            mBaseIconName += "marker_medium_wind";
+            mBaseIconName += "marker_medium_wind"; // orange arrow
         } else if (mSpeed > 13) {
-                        /* Prefix for green arrow */
-            mBaseIconName += "marker_light_wind";
+            mBaseIconName += "marker_light_wind"; // green arrow
         } else {
-                        /* Prefix for grey arrow */
-            mBaseIconName += "marker_no_wind";
+            mBaseIconName += "marker_no_wind"; // grey arrow
         }
 
         mSpeedIconName = "windspeed";
         if (mSpeed >= 0 && mSpeed < 100) {
             mSpeedIconName = mSpeedIconName + Integer.toString((int)mSpeed);
+        } else {
+            // Anything out of range will be marked as 0 mph
+            mSpeedIconName = mSpeedIconName + Integer.toString((int)0);
         }
     }
 

@@ -9,6 +9,7 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -18,6 +19,9 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +30,7 @@ import java.util.List;
  */
 public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
 
+    private final String TAG = "OmniMap";
     private GoogleMap mMap;
     private List<WindSensor> mWindSensorList;
 
@@ -61,7 +66,17 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
         // TODO Move to background
         // Parse the response
         mWindSensorList = new ArrayList<WindSensor>();
-        WindSensorParser.parseRawSensorData("", mWindSensorList);
+        // TODO
+        //WindSensorParser.parseRawSensorData("", mWindSensorList);
+        try {
+            WindSensorParser.parseRawSensorData2("", mWindSensorList);
+        }
+        catch (XmlPullParserException e) {
+        }
+        catch (IOException e) {
+        }
+        finally {
+        }
 
         // Add the parsed sensor data
         addMarkers(this, mMap,mWindSensorList);
@@ -86,7 +101,14 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
 
     static private void addMarkers(Context context, GoogleMap map, List<WindSensor> windSensorList) {
         if (windSensorList != null && !windSensorList.isEmpty()) {
+            int count = 0;
             for (WindSensor windSensor : windSensorList) {
+                if (count > 94) {
+                    //continue;
+                }
+                //Log.d("addMarkers", "adding marker # " + count);
+                count++;
+
                 // Get params
                 String resIdBaseName = windSensor.getBaseIconName();
                 String resIdSpeedName = windSensor.getSpeedIconName();
