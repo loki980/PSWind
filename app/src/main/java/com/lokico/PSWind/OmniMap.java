@@ -112,24 +112,25 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
                 String packageName = context.getPackageName();
                 Resources resources = context.getResources();
 
-                Matrix matrix = new Matrix();
-
+                // Get the base bitmap for the sensor
                 Bitmap bmpBase = BitmapFactory.decodeResource(
                         resources,
                         resources.getIdentifier(
                                 resIdBaseName, "drawable", packageName));
 
                 // Create a bitmap for our composite bitmap
-                Bitmap b = Bitmap.createBitmap(128, 128, Bitmap.Config.ARGB_8888);
+                // Base the size on the bmpBase size
+                Bitmap b = Bitmap.createBitmap(bmpBase.getWidth(), bmpBase.getHeight(),
+                        Bitmap.Config.ARGB_8888);
                 Canvas c = new Canvas(b);
-                matrix.setRotate(windSensor.getDirection(), 64, 64);
+
+                // Get the matrix to specify the rotation (wind direction)
+                Matrix matrix = new Matrix();
+                matrix.setRotate(windSensor.getDirection(), bmpBase.getWidth()/2,
+                        bmpBase.getHeight()/2);
 
                 // Draw the wind sensor's color and direction
-                c.drawBitmap(BitmapFactory.decodeResource(
-                        resources,
-                        resources.getIdentifier(
-                                resIdBaseName, "drawable", packageName)),
-                        matrix,new Paint());
+                c.drawBitmap(bmpBase, matrix,new Paint());
                 // Draw the wind sensor's wind speed
                 c.drawBitmap(BitmapFactory.decodeResource(
                         resources,
