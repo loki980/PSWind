@@ -61,7 +61,7 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
         // TODO Move to background
         // Parse the response
         mWindSensorList = new ArrayList<WindSensor>();
-        parseRawSensorData("", mWindSensorList);
+        WindSensorParser.parseRawSensorData("", mWindSensorList);
 
         // Add the parsed sensor data
         addMarkers(this, mMap,mWindSensorList);
@@ -83,25 +83,6 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
         return null;
     }
 
-    static private void parseRawSensorData(String rawSensorData, List<WindSensor> windSensors) {
-        // TODO Test data
-        /*
-        <markers>
-<marker id="WOTW07" label="Hat Island" lat="48.0194" lng="-122.334" wind="1" gust="3" angle="225" timestamp="1462988635"/>
-<marker id="WA010" label="Locust Beach" lat="48.7767" lng="-122.562" wind="3" gust="5" angle="337" timestamp="1462988340"/>
-<marker id="PBFW1" label="Padilla Bay" lat="48.4639" lng="-122.468" wind="2" gust="4" angle="315" timestamp="1462984200"/>
-<marker id="KNUW" label="Whidbey Island" lat="48.3492" lng="-122.651" wind="7" gust="0" angle="135" timestamp="1462985760"/>
-<marker id="WA001" label="Jetty Island" lat="48.0035" lng="-122.228" wind="6" gust="3" angle="90" timestamp="1409602200"/>
-
-        *
-         */
-        //WindSensor windSensor = new WindSensor(lat, lon, title, dir, speed)
-        windSensors.add(new WindSensor((float) 48.0194,(float)-122.334, "Hat Island", 225, 10));
-        windSensors.add(new WindSensor((float) 48.7767,(float)-122.562, "Locust Beach", 337, 15));
-        windSensors.add(new WindSensor((float) 48.4639,(float)-122.468, "Padilla Bay", 315, 20));
-        windSensors.add(new WindSensor((float) 48.3492,(float)-122.651, "Whidbey Island", 135,25));
-        windSensors.add(new WindSensor((float) 48.0035,(float)-122.228, "Jetty Island", 90, 30));
-    }
 
     static private void addMarkers(Context context, GoogleMap map, List<WindSensor> windSensorList) {
         if (windSensorList != null && !windSensorList.isEmpty()) {
