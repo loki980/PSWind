@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -33,11 +34,14 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
     private final String TAG = "OmniMap";
     private GoogleMap mMap;
     private List<WindSensor> mWindSensorList;
+    Context mContext;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_omni_map);
+        mContext = this;
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.display_omni_map);
@@ -68,21 +72,20 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
         mWindSensorList = new ArrayList<WindSensor>();
         // TODO
         //WindSensorParser.parseRawSensorData("", mWindSensorList);
-        try {
-            WindSensorParser.parseRawSensorData2("", mWindSensorList);
-        }
-        catch (XmlPullParserException e) {
-        }
-        catch (IOException e) {
-        }
-        finally {
-        }
+//        try {
+//            WindSensorParser.parseRawSensorData2("", mWindSensorList);
+//        } catch (XmlPullParserException e) {
+//        } catch (IOException e) {
+//        } finally {
+//        }
 
         // Add the parsed sensor data
-        addMarkers(this, mMap,mWindSensorList);
+//        addMarkers(this, mMap, mWindSensorList);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(jetty));
         //addMarkers(mMap);
         mMap.moveCamera(CameraUpdateFactory.zoomTo((float) 10.0));
+        DownloadWebPageTask task = new DownloadWebPageTask();
+        task.execute(new String[] { "http://www.vogella.com" });
     }
 
     /**
@@ -98,17 +101,9 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
         return null;
     }
 
-
     static private void addMarkers(Context context, GoogleMap map, List<WindSensor> windSensorList) {
         if (windSensorList != null && !windSensorList.isEmpty()) {
-            int count = 0;
             for (WindSensor windSensor : windSensorList) {
-                if (count > 94) {
-                    //continue;
-                }
-                //Log.d("addMarkers", "adding marker # " + count);
-                count++;
-
                 // Get params
                 String resIdBaseName = windSensor.getBaseIconName();
                 String resIdSpeedName = windSensor.getSpeedIconName();
@@ -129,17 +124,17 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
 
                 // Get the matrix to specify the rotation (wind direction)
                 Matrix matrix = new Matrix();
-                matrix.setRotate(windSensor.getDirection(), bmpBase.getWidth()/2,
-                        bmpBase.getHeight()/2);
+                matrix.setRotate(windSensor.getDirection(), bmpBase.getWidth() / 2,
+                        bmpBase.getHeight() / 2);
 
                 // Draw the wind sensor's color and direction
-                c.drawBitmap(bmpBase, matrix,new Paint());
+                c.drawBitmap(bmpBase, matrix, new Paint());
                 // Draw the wind sensor's wind speed
                 c.drawBitmap(BitmapFactory.decodeResource(
                         resources,
                         resources.getIdentifier(
                                 resIdSpeedName, "drawable", packageName)),
-                        0,0,new Paint());
+                        0, 0, new Paint());
 
                 // Add sensor marker to the map
                 map.addMarker(new MarkerOptions()
@@ -150,4 +145,23 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
             }
         }
     }
+
+    private class DownloadWebPageTask extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            try {
+                WindSensorParser.parseRawSensorData2("", mWindSensorList);
+            } catch (XmlPullParserException e) {
+            } catch (IOException e) {
+            } finally {
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            addMarkers(mContext, mMap, mWindSensorList);
+        }
+    }
+
 }
