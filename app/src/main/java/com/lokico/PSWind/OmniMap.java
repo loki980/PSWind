@@ -31,11 +31,11 @@ import java.util.List;
  */
 public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
 
-    private final String TAG = "OmniMap";
+    static private final String TAG = "OmniMap";
     private GoogleMap mMap;
     private List<WindSensor> mWindSensorList;
     Context mContext;
-
+    ParseTask mTtask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +46,9 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.display_omni_map);
         mapFragment.getMapAsync(this);
+        // Init member vars
+        mTtask = new ParseTask();
+        mWindSensorList = new ArrayList<WindSensor>();
     }
 
 
@@ -63,47 +66,41 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
 
-        // Add a marker at Jetty and move the camera
-        LatLng jetty = new LatLng(48.008154, -122.229781);
-        mMap.addMarker(new MarkerOptions().position(jetty).title("Marker in Jetty"));
-
-        // TODO Move to background
-        // Parse the response
-        mWindSensorList = new ArrayList<WindSensor>();
-        // TODO
-        //WindSensorParser.parseRawSensorData("", mWindSensorList);
-//        try {
-//            WindSensorParser.parseRawSensorData2("", mWindSensorList);
-//        } catch (XmlPullParserException e) {
-//        } catch (IOException e) {
-//        } finally {
-//        }
-
-        // Add the parsed sensor data
-//        addMarkers(this, mMap, mWindSensorList);
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(jetty));
-        //addMarkers(mMap);
+        // Adjust camera
+        // Jetty Island: lat="48.0035" lng="-122.228"
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(48.0035, -122.228)));
         mMap.moveCamera(CameraUpdateFactory.zoomTo((float) 10.0));
-        DownloadWebPageTask task = new DownloadWebPageTask();
-        task.execute(new String[] { "http://www.vogella.com" });
+        mTtask.execute(new String[] { "http://somewebsite" });
     }
 
     /**
      * A unit test helper method.
-     *
      * @return <code>true</code> if detailed testing can proceed.
      */
     static boolean isActivityImplemented() {
         return false;
     }
 
+    // TODO
     static private String getRawSensorData() {
         return null;
     }
 
+    // Add wind sensor markers to the map
     static private void addMarkers(Context context, GoogleMap map, List<WindSensor> windSensorList) {
         if (windSensorList != null && !windSensorList.isEmpty()) {
+            long startTime = System.nanoTime();
+
+            int count = 0;
+            Matrix matrix = new Matrix();
+            Bitmap b = null;
             for (WindSensor windSensor : windSensorList) {
+                // TODO Test
+                count++;
+                if (count > 200) {
+                    break;
+                }
+
                 // Get params
                 String resIdBaseName = windSensor.getBaseIconName();
                 String resIdSpeedName = windSensor.getSpeedIconName();
@@ -118,12 +115,12 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
 
                 // Create a bitmap for our composite bitmap
                 // Base the size on the bmpBase size
-                Bitmap b = Bitmap.createBitmap(bmpBase.getWidth(), bmpBase.getHeight(),
-                        Bitmap.Config.ARGB_8888);
+                b = Bitmap.createBitmap(bmpBase.getWidth(), bmpBase.getHeight(),
+                    Bitmap.Config.ARGB_8888);
                 Canvas c = new Canvas(b);
 
                 // Get the matrix to specify the rotation (wind direction)
-                Matrix matrix = new Matrix();
+                //Matrix matrix = new Matrix();
                 matrix.setRotate(windSensor.getDirection(), bmpBase.getWidth() / 2,
                         bmpBase.getHeight() / 2);
 
@@ -140,13 +137,17 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
                 map.addMarker(new MarkerOptions()
                         .position(windSensor.getLatLng())
                         .title(windSensor.getTitle())
+                        .anchor(0.5f, 0.5f)
                         .icon(BitmapDescriptorFactory
                                 .fromBitmap(b)));
             }
+            long endTime = System.nanoTime();
+            Log.d(TAG, "Time to add markers " + (endTime - startTime));
         }
     }
 
-    private class DownloadWebPageTask extends AsyncTask<String, Void, String> {
+    // Parse the raw sensor data in background
+    private class ParseTask extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... urls) {
             try {

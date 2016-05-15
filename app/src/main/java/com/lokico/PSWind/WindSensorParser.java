@@ -1,5 +1,6 @@
 package com.lokico.PSWind;
 
+import android.util.Log;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParser;
@@ -10,6 +11,8 @@ import java.io.StringReader;
 import java.util.List;
 
 public class WindSensorParser {
+
+    static final private String TAG = "WindSensorParser";
 
     static final String WINDSENSOR_TEST_DATA = "<markers>\n" +
             "<marker id=\"WOTW07\" label=\"Hat Island\" lat=\"48.0194\" lng=\"-122.334\" wind=\"7\" gust=\"9\" angle=\"157\" timestamp=\"1463160133\"/>\n" +
@@ -291,6 +294,8 @@ public class WindSensorParser {
             throws XmlPullParserException, IOException {
         try {
             // TODO Test
+            long startTime = System.nanoTime();
+
             rawSensorData = WINDSENSOR_TEST_DATA;
 
             XmlPullParser parser = Xml.newPullParser();
@@ -298,6 +303,8 @@ public class WindSensorParser {
             parser.setInput(new StringReader(rawSensorData));
             parser.nextTag();
             readFeed(windSensors, parser);
+            long endTime = System.nanoTime();
+            Log.d(TAG, "Time to parse " + (endTime - startTime));
         } finally {
 
         }
