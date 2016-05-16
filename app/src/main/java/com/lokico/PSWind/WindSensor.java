@@ -1,7 +1,9 @@
 package com.lokico.PSWind;
 
 import com.google.android.gms.maps.model.LatLng;
-
+/*
+ *  This class represents a wind sensor reading including: lat/lng, title, speed, direction.
+ */
 public class WindSensor {
     private LatLng mLatLng;
     private String mTitle;
@@ -10,7 +12,6 @@ public class WindSensor {
     private float mSpeed;
     private String mSpeedIconName;
 
-    // TODO Consider using a builder pattern
     public WindSensor(float lat, float lon, String title, float direction,
                       float speed) {
         mLatLng = new LatLng(lat, lon);

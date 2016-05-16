@@ -23,6 +23,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -39,25 +40,31 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
 
     static private final String TAG = "OmniMap";
     private GoogleMap mMap;
-    private List<WindSensor> mWindSensorList;
     Context mContext;
-    ParseTask mTtask;
     RequestQueue mRequestQueue;
+    private CameraPosition cameraPosition;
+    private static final String CAMERA_POSITION = "CAMERA_POSITION";
+
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_omni_map);
-        mContext = this;
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.display_omni_map);
         mapFragment.getMapAsync(this);
         // Init member vars
-        mTtask = new ParseTask();
-        mWindSensorList = new ArrayList<WindSensor>();
+        mContext = this;
         mRequestQueue = Volley.newRequestQueue(getApplicationContext());
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        //savedInstanceState.putString(CAMERA_POSITION, cameraPosition);
+        // Always call the superclass so it can save the view hierarchy state
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
@@ -73,11 +80,17 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
+        mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        //mMap.setMyLocationEnabled();
 
         // Adjust camera
         // Jetty Island: lat="48.0035" lng="-122.228"
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(48.0035, -122.228)));
-        mMap.moveCamera(CameraUpdateFactory.zoomTo((float) 10.0));
+        if (cameraPosition != null) {
+            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+        } else {
+           mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(48.0035, -122.228)));
+           mMap.moveCamera(CameraUpdateFactory.zoomTo((float) 10.0));
+        }
 
         // Get the raw sensor data
         getRawSensorData("http://windonthewater.com/api/region_wind.php?v=1&k=TEST&r=wa");
@@ -85,20 +98,23 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
 
     /**
      * A unit test helper method.
+     *
      * @return <code>true</code> if detailed testing can proceed.
      */
     static boolean isActivityImplemented() {
         return false;
     }
 
-     private String getRawSensorData(String url) {
+
+    // Get the raw sensor data in the background
+    private String getRawSensorData(String url) {
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String html) {
                         // Do something with the response
                         // Parse the data
-                        mTtask.execute(html);
+                        new ParseTask().execute(html);
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -138,7 +154,7 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
                 // Create a bitmap for our composite bitmap
                 // Base the size on the bmpBase size
                 b = Bitmap.createBitmap(bmpBase.getWidth(), bmpBase.getHeight(),
-                    Bitmap.Config.ARGB_8888);
+                        Bitmap.Config.ARGB_8888);
                 Canvas c = new Canvas(b);
 
                 // Get the matrix to specify the rotation (wind direction)
@@ -169,21 +185,22 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
     }
 
     // Parse the raw sensor data in background
-    private class ParseTask extends AsyncTask<String, Void, String> {
+    private class ParseTask extends AsyncTask<String, Void, List<WindSensor>> {
         @Override
-        protected String doInBackground(String... html) {
+        protected List<WindSensor> doInBackground(String... html) {
+            List<WindSensor> list = null;
             try {
-                WindSensorParser.parseRawSensorData(html[0], mWindSensorList);
+                list = WindSensorParser.parseRawSensorData(html[0]);
             } catch (XmlPullParserException e) {
             } catch (IOException e) {
             } finally {
             }
-            return null;
+            return list;
         }
 
         @Override
-        protected void onPostExecute(String result) {
-            addMarkers(mContext, mMap, mWindSensorList);
+        protected void onPostExecute(List result) {
+            addMarkers(mContext, mMap, result);
         }
     }
 }
