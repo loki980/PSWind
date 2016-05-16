@@ -12,6 +12,12 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -36,6 +42,8 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
     private List<WindSensor> mWindSensorList;
     Context mContext;
     ParseTask mTtask;
+    RequestQueue mRequestQueue;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,17 +57,17 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
         // Init member vars
         mTtask = new ParseTask();
         mWindSensorList = new ArrayList<WindSensor>();
+        mRequestQueue = Volley.newRequestQueue(getApplicationContext());
     }
 
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mRequestQueue != null) {
+            mRequestQueue.cancelAll(this);
+        }
+    }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -70,7 +78,9 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
         // Jetty Island: lat="48.0035" lng="-122.228"
         mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(48.0035, -122.228)));
         mMap.moveCamera(CameraUpdateFactory.zoomTo((float) 10.0));
-        mTtask.execute(new String[] { "http://somewebsite" });
+
+        // Get the raw sensor data
+        getRawSensorData("http://windonthewater.com/api/region_wind.php?v=1&k=TEST&r=wa");
     }
 
     /**
@@ -81,8 +91,26 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
         return false;
     }
 
-    // TODO
-    static private String getRawSensorData() {
+     private String getRawSensorData(String url) {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String html) {
+                        // Do something with the response
+                        // Parse the data
+                        mTtask.execute(html);
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(TAG, "onErrorResponse " + error.toString());
+            }
+        });
+
+        // Tag and then add the request to the RequestQueue.
+        stringRequest.setTag(this);
+        mRequestQueue.add(stringRequest);
+
         return null;
     }
 
@@ -95,12 +123,6 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
             Matrix matrix = new Matrix();
             Bitmap b = null;
             for (WindSensor windSensor : windSensorList) {
-                // TODO Test
-                count++;
-                if (count > 200) {
-                    break;
-                }
-
                 // Get params
                 String resIdBaseName = windSensor.getBaseIconName();
                 String resIdSpeedName = windSensor.getSpeedIconName();
@@ -149,9 +171,9 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
     // Parse the raw sensor data in background
     private class ParseTask extends AsyncTask<String, Void, String> {
         @Override
-        protected String doInBackground(String... urls) {
+        protected String doInBackground(String... html) {
             try {
-                WindSensorParser.parseRawSensorData2("", mWindSensorList);
+                WindSensorParser.parseRawSensorData(html[0], mWindSensorList);
             } catch (XmlPullParserException e) {
             } catch (IOException e) {
             } finally {
@@ -164,5 +186,4 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
             addMarkers(mContext, mMap, mWindSensorList);
         }
     }
-
 }
