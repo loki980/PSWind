@@ -20,7 +20,7 @@ public class WindSensor {
         mSpeed = speed;
 
         // Select icons to display itself
-        //mBaseIconName = "drawable/";
+        // The first icon is the colored direction arrow
         mBaseIconName = "";
         if (mSpeed > 27) {
             mBaseIconName += "marker_high_wind"; // red arrow
@@ -32,6 +32,7 @@ public class WindSensor {
             mBaseIconName += "marker_no_wind"; // grey arrow
         }
 
+        // The second icon is the speed numerals (0 - 99) mph
         mSpeedIconName = "windspeed";
         if (mSpeed >= 0 && mSpeed < 100) {
             mSpeedIconName = mSpeedIconName + Integer.toString((int)mSpeed);

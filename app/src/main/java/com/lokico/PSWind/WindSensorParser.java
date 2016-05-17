@@ -8,6 +8,9 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+ * This class parses the xml wind sensor data to a list of WindSensor elements
+ */
 public class WindSensorParser {
 
     static final private String TAG = "WindSensorParser";
@@ -27,7 +30,8 @@ public class WindSensorParser {
         return list;
     }
 
-    static List<WindSensor> readFeed(XmlPullParser parser) throws XmlPullParserException, IOException {
+    // Reads the xml feed
+    static private List<WindSensor> readFeed(XmlPullParser parser) throws XmlPullParserException, IOException {
         parser.require(XmlPullParser.START_TAG, ns, "markers");
         List<WindSensor> list = new ArrayList<>();
         while (parser.next() != XmlPullParser.END_TAG) {
@@ -45,6 +49,7 @@ public class WindSensorParser {
         return list;
     }
 
+    // Reads an individual marker and generates a WindSensor element
     static private WindSensor readMarker(XmlPullParser parser)
             throws XmlPullParserException, IOException {
         String lat = null;
@@ -61,8 +66,6 @@ public class WindSensorParser {
             title = parser.getAttributeValue(null, "label");
             speed = parser.getAttributeValue(null, "wind");
             direction = parser.getAttributeValue(null, "angle");
-        } else {
-            //skip(parser);
         }
         parser.next();
 
@@ -70,7 +73,8 @@ public class WindSensorParser {
                 Float.parseFloat(direction), Float.parseFloat(speed));
     }
 
-    static void skip(XmlPullParser parser) throws XmlPullParserException, IOException {
+    // Skips xml data that we are not interested in
+    static private void skip(XmlPullParser parser) throws XmlPullParserException, IOException {
         if (parser.getEventType() != XmlPullParser.START_TAG) {
             throw new IllegalStateException();
         }

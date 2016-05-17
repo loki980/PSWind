@@ -31,7 +31,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -47,7 +46,6 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
     private static final String CAMERA_POSITION = "CAMERA_POSITION";
     private static final String PREFS_NAME = "OmniMapPrefs";
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,41 +60,36 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        //savedInstanceState.putString(CAMERA_POSITION, cameraPosition);
-        // Always call the superclass so it can save the view hierarchy state
-        super.onSaveInstanceState(savedInstanceState);
-    }
-
-    @Override
     public void onStop() {
         super.onStop();
+        // Cancel our request queue
         if (mRequestQueue != null) {
             mRequestQueue.cancelAll(this);
         }
 
         // Save the camera position
-        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
-        SharedPreferences.Editor editor = settings.edit();
-        CameraPosition cameraPosition = mMap.getCameraPosition();
-        LatLng latLng = cameraPosition.target;
-        editor.putFloat("LastZoom", cameraPosition.zoom);
-        editor.putFloat("LastLat", (float) latLng.latitude);
-        editor.putFloat("LastLng", (float) latLng.longitude);
+        if (mMap != null) {
+            SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+            SharedPreferences.Editor editor = settings.edit();
+            CameraPosition cameraPosition = mMap.getCameraPosition();
+            LatLng latLng = cameraPosition.target;
+            editor.putFloat("LastZoom", cameraPosition.zoom);
+            editor.putFloat("LastLat", (float) latLng.latitude);
+            editor.putFloat("LastLng", (float) latLng.longitude);
 
-        // Commit the edits!
-        editor.commit();
+            // Commit the edits!
+            editor.commit();
+        }
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        // Set the zoom and compass
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
-        mMap.getUiSettings().setMyLocationButtonEnabled(true);
-        //mMap.setMyLocationEnabled();
 
-        // Restore last camera position
+        // Restore the last camera position
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         float lastZoom = settings.getFloat("LastZoom", 10.0f);
         mMap.moveCamera(CameraUpdateFactory.zoomTo(lastZoom));
@@ -117,14 +110,13 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
         return false;
     }
 
-
-    // Get the raw sensor data in the background
+    // Get the raw sensor data (xml) in the background
+    // TODO Consider using RxJava and Retrofit
     private String getRawSensorData(String url) {
         StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String html) {
-                        // Do something with the response
                         // Parse the data
                         new ParseTask().execute(html);
                     }
@@ -169,8 +161,7 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
                         Bitmap.Config.ARGB_8888);
                 Canvas c = new Canvas(b);
 
-                // Get the matrix to specify the rotation (wind direction)
-                //Matrix matrix = new Matrix();
+                // Set the rotation (wind direction) and pivot point
                 matrix.setRotate(windSensor.getDirection(), bmpBase.getWidth() / 2,
                         bmpBase.getHeight() / 2);
 
@@ -196,7 +187,8 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
         }
     }
 
-    // Parse the raw sensor data in background
+    // Parse the raw sensor data in the background
+    // TODO Consider using RxJava
     private class ParseTask extends AsyncTask<String, Void, List<WindSensor>> {
         @Override
         protected List<WindSensor> doInBackground(String... html) {
@@ -211,8 +203,8 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
         }
 
         @Override
-        protected void onPostExecute(List result) {
-            addMarkers(mContext, mMap, result);
+        protected void onPostExecute(List windSensorList) {
+            addMarkers(mContext, mMap, windSensorList);
         }
     }
 }
