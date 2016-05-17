@@ -1,6 +1,7 @@
 package com.lokico.PSWind;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -44,7 +45,7 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
     RequestQueue mRequestQueue;
     private CameraPosition cameraPosition;
     private static final String CAMERA_POSITION = "CAMERA_POSITION";
-
+    private static final String PREFS_NAME = "OmniMapPrefs";
 
 
     @Override
@@ -73,6 +74,18 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
         if (mRequestQueue != null) {
             mRequestQueue.cancelAll(this);
         }
+
+        // Save the camera position
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        CameraPosition cameraPosition = mMap.getCameraPosition();
+        LatLng latLng = cameraPosition.target;
+        editor.putFloat("LastZoom", cameraPosition.zoom);
+        editor.putFloat("LastLat", (float) latLng.latitude);
+        editor.putFloat("LastLng", (float) latLng.longitude);
+
+        // Commit the edits!
+        editor.commit();
     }
 
     @Override
@@ -83,14 +96,13 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
         mMap.getUiSettings().setMyLocationButtonEnabled(true);
         //mMap.setMyLocationEnabled();
 
-        // Adjust camera
-        // Jetty Island: lat="48.0035" lng="-122.228"
-        if (cameraPosition != null) {
-            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-        } else {
-           mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(48.0035, -122.228)));
-           mMap.moveCamera(CameraUpdateFactory.zoomTo((float) 10.0));
-        }
+        // Restore last camera position
+        SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        float lastZoom = settings.getFloat("LastZoom", 10.0f);
+        mMap.moveCamera(CameraUpdateFactory.zoomTo(lastZoom));
+        float lastLat = settings.getFloat("LastLat", 48.0035f);
+        float lastLng = settings.getFloat("LastLng", -122.228f);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lastLat, lastLng)));
 
         // Get the raw sensor data
         getRawSensorData("http://windonthewater.com/api/region_wind.php?v=1&k=TEST&r=wa");
