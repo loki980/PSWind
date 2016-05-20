@@ -40,8 +40,8 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
 
     static private final String TAG = "OmniMap";
     private GoogleMap mMap;
-    Context mContext;
-    RequestQueue mRequestQueue;
+    private Context mContext;
+    private RequestQueue mRequestQueue;
     private CameraPosition cameraPosition;
     private static final String CAMERA_POSITION = "CAMERA_POSITION";
     private static final String PREFS_NAME = "OmniMapPrefs";
@@ -73,6 +73,7 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
             SharedPreferences.Editor editor = settings.edit();
             CameraPosition cameraPosition = mMap.getCameraPosition();
             LatLng latLng = cameraPosition.target;
+            // TODO Use constants for keys
             editor.putFloat("LastZoom", cameraPosition.zoom);
             editor.putFloat("LastLat", (float) latLng.latitude);
             editor.putFloat("LastLng", (float) latLng.longitude);
@@ -91,6 +92,7 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
 
         // Restore the last camera position
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
+        // TODO Use constants for keys and resources for default values
         float lastZoom = settings.getFloat("LastZoom", 10.0f);
         mMap.moveCamera(CameraUpdateFactory.zoomTo(lastZoom));
         float lastLat = settings.getFloat("LastLat", 48.0035f);
