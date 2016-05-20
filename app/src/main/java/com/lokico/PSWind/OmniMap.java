@@ -152,7 +152,7 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
      * @return <code>true</code> if detailed testing can proceed.
      */
     static boolean isActivityImplemented() {
-        return false;
+        return true;
     }
 
     // Get the raw sensor data (xml) in the background
