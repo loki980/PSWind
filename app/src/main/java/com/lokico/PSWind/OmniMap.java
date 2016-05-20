@@ -48,7 +48,7 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
     private CameraPosition mCameraPosition;
     private static final String CAMERA_POSITION = "CAMERA_POSITION";
     private static final String PREFS_NAME = "OMNI_MAP_PREFS";
-    private Map<String, WindSensorArea> mGeograpicAreas;
+    private Map<String, WindSensorRegion> mGeograpicAreas;
     private String mWindSensorAreaSelected = "";
     private static final String BASE_WIND_SENSORS_URL =
             "http://windonthewater.com/api/region_wind.php?v=1&k=TEST&r=";
@@ -99,7 +99,7 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
         // Set the zoom and compass
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
-        createWindSensorAreasCollection();
+        createWindSensorRegionCollection();
         mMap.setOnMarkerClickListener(this);
 
         // Restore the last camera position
@@ -116,31 +116,38 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
         getRawSensorData(BASE_WIND_SENSORS_URL + "wa");
 
         // Add the geographic area markers. These denote areas where we have wind sensors.
-        addMarkersForWindSensorAreas();
+        addMarkersForWindSensorRegions();
     }
 
-    private void createWindSensorAreasCollection() {
-        // Create collection of wind sensor areas
+    /*
+     * Create the collection of WindSensorRegions
+     */
+    private void createWindSensorRegionCollection() {
+        // Create collection of wind sensor regions
         String title = "";
         String htmlSuffix = "";
         float lat = 0;
         float lng = 0;
         title = "Oregon"; lat = 44.663f; lng = -122.431f; htmlSuffix = "or";
-        mGeograpicAreas.put(title,new WindSensorArea(lat, lng, title, htmlSuffix));
+        mGeograpicAreas.put(title,new WindSensorRegion(lat, lng, title, htmlSuffix));
         title = "Washington"; lat = 47.882f; lng = -121.849f; htmlSuffix = "wa";
-        mGeograpicAreas.put(title,new WindSensorArea(lat, lng, title, htmlSuffix));
+        mGeograpicAreas.put(title,new WindSensorRegion(lat, lng, title, htmlSuffix));
         title = "British Columbia"; lat = 49.943f; lng = -124.651f; htmlSuffix = "bc";
-        mGeograpicAreas.put(title,new WindSensorArea(lat, lng, title, htmlSuffix));
+        mGeograpicAreas.put(title,new WindSensorRegion(lat, lng, title, htmlSuffix));
     }
-    private void addMarkersForWindSensorAreas() {
+
+    /*
+     * Add the markers for each WindSensorRegion
+     */
+    private void addMarkersForWindSensorRegions() {
         if (mMap != null && mGeograpicAreas != null) {
-            // Add the wind sensor area markers to the map
-            for (WindSensorArea windSensorArea : mGeograpicAreas.values()) {
-                if (windSensorArea.getTitle().equals(mWindSensorAreaSelected)) {
+            // Add the wind sensor region markers to the map
+            for (WindSensorRegion windSensorRegion : mGeograpicAreas.values()) {
+                if (windSensorRegion.getTitle().equals(mWindSensorAreaSelected)) {
                     // Don't add to map
                 } else{
-                    mMap.addMarker(new MarkerOptions().title(windSensorArea.getTitle())
-                            .position(windSensorArea.getLatLng()));
+                    mMap.addMarker(new MarkerOptions().title(windSensorRegion.getTitle())
+                            .position(windSensorRegion.getLatLng()));
                 }
             }
         }
@@ -235,16 +242,16 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
     @Override
     public boolean onMarkerClick(Marker marker) {
         String title = marker.getTitle();
-        WindSensorArea windSensorArea = mGeograpicAreas.get(title);
-        if (windSensorArea != null) {
+        WindSensorRegion windSensorRegion = mGeograpicAreas.get(title);
+        if (windSensorRegion != null) {
             // Save selected area
             mWindSensorAreaSelected = title;
             // Remove existing wind sensor markers
             mMap.clear();
             // TODO
             // Request new wind sensor markers
-            getRawSensorData(BASE_WIND_SENSORS_URL + windSensorArea.getHtmlSuffix());
-            addMarkersForWindSensorAreas();
+            getRawSensorData(BASE_WIND_SENSORS_URL + windSensorRegion.getHtmlSuffix());
+            addMarkersForWindSensorRegions();
             return true;
         }
         return false;
