@@ -48,7 +48,7 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
     private CameraPosition mCameraPosition;
     private static final String CAMERA_POSITION = "CAMERA_POSITION";
     private static final String PREFS_NAME = "OMNI_MAP_PREFS";
-    private Map<String, WindSensorRegion> mGeograpicAreas;
+    private Map<String, WindSensorRegion> mWindSensorRegions;
     private String mWindSensorAreaSelected = "";
     private static final String BASE_WIND_SENSORS_URL =
             "http://windonthewater.com/api/region_wind.php?v=1&k=TEST&r=";
@@ -56,10 +56,12 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Init member variables
         mContext = this;
         mRequestQueue = Volley.newRequestQueue(getApplicationContext());
-        mGeograpicAreas = new HashMap<>();
+        mWindSensorRegions = new HashMap<>();
 
+        // Init the Google Map
         setContentView(R.layout.activity_omni_map);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -113,7 +115,8 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
         mWindSensorAreaSelected = "Washington";
         getRawSensorData(BASE_WIND_SENSORS_URL + "wa");
 
-        // Add the geographic area markers. These denote areas where we have wind sensors.
+        // Add the geographic region markers.
+        // These denote geographic areas where we have wind sensors.
         addMarkersForWindSensorRegions();
     }
 
@@ -122,28 +125,19 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
      */
     private void createWindSensorRegionCollection() {
         // Create collection of wind sensor regions
-        String title = "";
-        String htmlSuffix = "";
-        float lat = 0;
-        float lng = 0;
-        title = "Oregon"; lat = 44.663f; lng = -122.431f; htmlSuffix = "or";
-        mGeograpicAreas.put(title,new WindSensorRegion(lat, lng, title, htmlSuffix));
-        title = "Washington"; lat = 47.882f; lng = -121.849f; htmlSuffix = "wa";
-        mGeograpicAreas.put(title,new WindSensorRegion(lat, lng, title, htmlSuffix));
-        title = "British Columbia"; lat = 49.943f; lng = -124.651f; htmlSuffix = "bc";
-        mGeograpicAreas.put(title,new WindSensorRegion(lat, lng, title, htmlSuffix));
+        WindSensorRegion.createWindSensorRegionsCollection(mWindSensorRegions);
     }
 
     /*
      * Add the markers for each WindSensorRegion
      */
     private void addMarkersForWindSensorRegions() {
-        if (mMap != null && mGeograpicAreas != null) {
+        if (mMap != null && mWindSensorRegions != null) {
             // Add the wind sensor region markers to the map
-            for (WindSensorRegion windSensorRegion : mGeograpicAreas.values()) {
+            for (WindSensorRegion windSensorRegion : mWindSensorRegions.values()) {
                 if (windSensorRegion.getTitle().equals(mWindSensorAreaSelected)) {
                     // Don't add to map
-                } else{
+                } else {
                     mMap.addMarker(new MarkerOptions().title(windSensorRegion.getTitle())
                             .position(windSensorRegion.getLatLng()));
                 }
@@ -240,7 +234,7 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
     @Override
     public boolean onMarkerClick(Marker marker) {
         String title = marker.getTitle();
-        WindSensorRegion windSensorRegion = mGeograpicAreas.get(title);
+        WindSensorRegion windSensorRegion = mWindSensorRegions.get(title);
         if (windSensorRegion != null) {
             // Save selected area
             mWindSensorAreaSelected = title;
