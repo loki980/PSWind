@@ -33,35 +33,36 @@ public class WindSensorRegion {
         return mLatLng;
     }
 
-    // The regions
+    /*
+     * Adds the WindOnTheWater regions
+     */
     public static void createWindSensorRegionsCollection(Map<String, WindSensorRegion> windSensorRegionList) {
         if (windSensorRegionList == null) {
             return;
         }
-        String title = "";
-        String htmlSuffix = "";
-        float lat = 0;
-        float lng = 0;
 
-        title = "Oregon";
-        lat = 44.663f;
-        lng = -122.431f;
-        htmlSuffix = "or";
-        windSensorRegionList.put(title, new WindSensorRegion(lat, lng, title, htmlSuffix));
-        title = "Washington";
-        lat = 47.882f;
-        lng = -121.849f;
-        htmlSuffix = "wa";
-        windSensorRegionList.put(title, new WindSensorRegion(lat, lng, title, htmlSuffix));
-        title = "British Columbia";
-        lat = 49.943f;
-        lng = -124.651f;
-        htmlSuffix = "bc";
-        windSensorRegionList.put(title, new WindSensorRegion(lat, lng, title, htmlSuffix));
-        title = "California";
-        lat = 37.794f;
-        lng = -122.007f;
-        htmlSuffix = "ca";
+        addRegionToCollection(windSensorRegionList, "Oregon", 44.663f,-122.431f,"or");
+        addRegionToCollection(windSensorRegionList, "Washington", 47.882f,-121.849f,"wa");
+        addRegionToCollection(windSensorRegionList, "British Columbia", 49.943f,-124.651f,"bc");
+        addRegionToCollection(windSensorRegionList, "California", 37.794f,-122.007f,"ca");
+        addRegionToCollection(windSensorRegionList, "Mexico", 26.219f,-108.775f,"mx");
+        addRegionToCollection(windSensorRegionList, "Hawaii", 20.802f,-156.268f,"hi");
+        addRegionToCollection(windSensorRegionList, "Texas", 28.208f,-97.605f,"tx");
+        addRegionToCollection(windSensorRegionList, "Montana", 47.594f,-109.799f,"mt");
+        addRegionToCollection(windSensorRegionList, "Great Lakes", 45.355f,-84.499f,"gl");
+        addRegionToCollection(windSensorRegionList, "Louisiana", 29.837f,-92.435f,"la");
+        addRegionToCollection(windSensorRegionList, "Massachusetts", 42.172f,-70.993f,"ma");
+        addRegionToCollection(windSensorRegionList, "New York", 40.802f,-73.400f,"ny");
+        addRegionToCollection(windSensorRegionList, "New Jersey", 39.844f,-74.324f,"nj");
+        addRegionToCollection(windSensorRegionList, "North Carolina", 35.692f,-76.752f,"nc");
+        addRegionToCollection(windSensorRegionList, "South Carolina / Georgia", 33.111f,-79.698f,"gc");
+        addRegionToCollection(windSensorRegionList, "Florida", 27.491f,-81.521f,"fl");
+    }
+
+    // Helper function to add a region to the collection
+    private static void addRegionToCollection(Map<String, WindSensorRegion> windSensorRegionList,
+                                              String title, float lat, float lng,
+                                              String htmlSuffix) {
         windSensorRegionList.put(title, new WindSensorRegion(lat, lng, title, htmlSuffix));
     }
 }

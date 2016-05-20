@@ -38,6 +38,7 @@ import java.util.Map;
 
 /**
  * The interactive sensor map <code>Activity</code>.
+ * This activity uses a Google Map to display wind sensors.
  */
 public class OmniMap extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
