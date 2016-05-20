@@ -26,37 +26,47 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * The interactive sensor map <code>Activity</code>.
  */
-public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
+public class OmniMap extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     static private final String TAG = "OmniMap";
     private GoogleMap mMap;
     private Context mContext;
     private RequestQueue mRequestQueue;
-    private CameraPosition cameraPosition;
+    private CameraPosition mCameraPosition;
     private static final String CAMERA_POSITION = "CAMERA_POSITION";
-    private static final String PREFS_NAME = "OmniMapPrefs";
+    private static final String PREFS_NAME = "OMNI_MAP_PREFS";
+    private Map<String, WindSensorArea> mGeograpicAreas;
+    private String mWindSensorAreaSelected = "";
+    private static final String BASE_WIND_SENSORS_URL =
+            "http://windonthewater.com/api/region_wind.php?v=1&k=TEST&r=";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mContext = this;
+        mRequestQueue = Volley.newRequestQueue(getApplicationContext());
+        mGeograpicAreas = new HashMap<>();
+
         setContentView(R.layout.activity_omni_map);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.display_omni_map);
         mapFragment.getMapAsync(this);
         // Init member vars
-        mContext = this;
-        mRequestQueue = Volley.newRequestQueue(getApplicationContext());
+
     }
 
     @Override
@@ -89,6 +99,8 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
         // Set the zoom and compass
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.getUiSettings().setCompassEnabled(true);
+        createWindSensorAreasCollection();
+        mMap.setOnMarkerClickListener(this);
 
         // Restore the last camera position
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
@@ -100,7 +112,38 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
         mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lastLat, lastLng)));
 
         // Get the raw sensor data
-        getRawSensorData("http://windonthewater.com/api/region_wind.php?v=1&k=TEST&r=wa");
+        mWindSensorAreaSelected = "Washington";
+        getRawSensorData(BASE_WIND_SENSORS_URL + "wa");
+
+        // Add the geographic area markers. These denote areas where we have wind sensors.
+        addMarkersForWindSensorAreas();
+    }
+
+    private void createWindSensorAreasCollection() {
+        // Create collection of wind sensor areas
+        String title = "";
+        String htmlSuffix = "";
+        float lat = 0;
+        float lng = 0;
+        title = "Oregon"; lat = 44.663f; lng = -122.431f; htmlSuffix = "or";
+        mGeograpicAreas.put(title,new WindSensorArea(lat, lng, title, htmlSuffix));
+        title = "Washington"; lat = 47.882f; lng = -121.849f; htmlSuffix = "wa";
+        mGeograpicAreas.put(title,new WindSensorArea(lat, lng, title, htmlSuffix));
+        title = "British Columbia"; lat = 49.943f; lng = -124.651f; htmlSuffix = "bc";
+        mGeograpicAreas.put(title,new WindSensorArea(lat, lng, title, htmlSuffix));
+    }
+    private void addMarkersForWindSensorAreas() {
+        if (mMap != null && mGeograpicAreas != null) {
+            // Add the wind sensor area markers to the map
+            for (WindSensorArea windSensorArea : mGeograpicAreas.values()) {
+                if (windSensorArea.getTitle().equals(mWindSensorAreaSelected)) {
+                    // Don't add to map
+                } else{
+                    mMap.addMarker(new MarkerOptions().title(windSensorArea.getTitle())
+                            .position(windSensorArea.getLatLng()));
+                }
+            }
+        }
     }
 
     /**
@@ -187,6 +230,24 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback {
             long endTime = System.nanoTime();
             Log.d(TAG, "Time to add markers " + (endTime - startTime));
         }
+    }
+
+    @Override
+    public boolean onMarkerClick(Marker marker) {
+        String title = marker.getTitle();
+        WindSensorArea windSensorArea = mGeograpicAreas.get(title);
+        if (windSensorArea != null) {
+            // Save selected area
+            mWindSensorAreaSelected = title;
+            // Remove existing wind sensor markers
+            mMap.clear();
+            // TODO
+            // Request new wind sensor markers
+            getRawSensorData(BASE_WIND_SENSORS_URL + windSensorArea.getHtmlSuffix());
+            addMarkersForWindSensorAreas();
+            return true;
+        }
+        return false;
     }
 
     // Parse the raw sensor data in the background
