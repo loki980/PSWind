@@ -65,8 +65,6 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.display_omni_map);
         mapFragment.getMapAsync(this);
-        // Init member vars
-
     }
 
     @Override
@@ -226,7 +224,7 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
                                 resIdSpeedName, "drawable", packageName)),
                         0, 0, new Paint());
 
-                // Add sensor marker to the map
+                // Add the wind sensor marker to the map
                 map.addMarker(new MarkerOptions()
                         .position(windSensor.getLatLng())
                         .title(windSensor.getTitle())
@@ -252,9 +250,9 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
             // Request new wind sensor markers
             getRawSensorData(BASE_WIND_SENSORS_URL + windSensorRegion.getHtmlSuffix());
             addMarkersForWindSensorRegions();
-            return true;
+            return true; // Indicates we handled the event
         }
-        return false;
+        return false; // Let the default behavior occur
     }
 
     // Parse the raw sensor data in the background
