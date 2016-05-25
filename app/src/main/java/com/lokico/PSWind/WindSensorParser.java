@@ -52,6 +52,7 @@ public class WindSensorParser {
     // Reads an individual marker and generates a WindSensor element
     static private WindSensor readMarker(XmlPullParser parser)
             throws XmlPullParserException, IOException {
+        String id = null;
         String lat = null;
         String lng = null;
         String title = null;
@@ -61,6 +62,7 @@ public class WindSensorParser {
         //name = parser.getName();
 
         if (name.equals("marker")) {
+            id = parser.getAttributeValue(null, "id");
             lat = parser.getAttributeValue(null, "lat");
             lng = parser.getAttributeValue(null, "lng");
             title = parser.getAttributeValue(null, "label");
@@ -69,7 +71,7 @@ public class WindSensorParser {
         }
         parser.next();
 
-        return new WindSensor(Float.parseFloat(lat), Float.parseFloat(lng), title,
+        return new WindSensor(id, Float.parseFloat(lat), Float.parseFloat(lng), title,
                 Float.parseFloat(direction), Float.parseFloat(speed));
     }
 

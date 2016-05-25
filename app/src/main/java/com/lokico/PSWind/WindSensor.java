@@ -7,13 +7,15 @@ import com.google.android.gms.maps.model.LatLng;
 public class WindSensor {
     private LatLng mLatLng;
     private String mTitle;
+    private String mID;
     private String mBaseIconName;
     private float mDirection;
     private float mSpeed;
     private String mSpeedIconName;
 
-    public WindSensor(float lat, float lon, String title, float direction,
+    public WindSensor(String id, float lat, float lon, String title, float direction,
                       float speed) {
+        mID = id;
         mLatLng = new LatLng(lat, lon);
         mTitle = title;
         mDirection = direction;
@@ -44,6 +46,7 @@ public class WindSensor {
 
     // Getters
     LatLng getLatLng() {return mLatLng;}
+    String getID() {return mID;}
     String getTitle() {return mTitle;}
     String getBaseIconName() {return mBaseIconName;}
     String getSpeedIconName() {return mSpeedIconName;}

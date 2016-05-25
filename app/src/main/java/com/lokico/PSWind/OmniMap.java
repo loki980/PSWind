@@ -103,6 +103,8 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
         createWindSensorRegionCollection();
         mMap.setOnMarkerClickListener(this);
 
+        mMap.setInfoWindowAdapter(new WindSensorInfoWindowAdapter(this, mRequestQueue));
+
         // Restore the last camera position
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         // TODO Use constants for keys and resources for default values
@@ -223,6 +225,7 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
                 map.addMarker(new MarkerOptions()
                         .position(windSensor.getLatLng())
                         .title(windSensor.getTitle())
+                        .snippet(windSensor.getID())
                         .anchor(0.5f, 0.5f)
                         .icon(BitmapDescriptorFactory
                                 .fromBitmap(b)));
@@ -235,18 +238,22 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
     @Override
     public boolean onMarkerClick(Marker marker) {
         String title = marker.getTitle();
+
+        // Check first for a regional marker
         WindSensorRegion windSensorRegion = mWindSensorRegions.get(title);
         if (windSensorRegion != null) {
             // Save selected area
             mWindSensorAreaSelected = title;
             // Remove existing wind sensor markers
             mMap.clear();
-            // TODO
             // Request new wind sensor markers
             getRawSensorData(BASE_WIND_SENSORS_URL + windSensorRegion.getHtmlSuffix());
             addMarkersForWindSensorRegions();
             return true; // Indicates we handled the event
         }
+
+        // Must be a wind sensor marker. So retrieve and display the wind graph.
+        // TODO
         return false; // Let the default behavior occur
     }
 
