@@ -88,6 +88,7 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
             editor.putFloat("LastZoom", cameraPosition.zoom);
             editor.putFloat("LastLat", (float) latLng.latitude);
             editor.putFloat("LastLng", (float) latLng.longitude);
+            editor.putString("LastRegion",mWindSensorAreaSelected);
 
             // Commit the edits!
             editor.commit();
@@ -105,7 +106,8 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
 
         mMap.setInfoWindowAdapter(new WindSensorInfoWindowAdapter(this, mRequestQueue));
 
-        // Restore the last camera position
+        // Restore the last camera position and last region selected
+        // Or use defaults: Jetty Island, zoom of 10, Washington region.
         SharedPreferences settings = getSharedPreferences(PREFS_NAME, 0);
         // TODO Use constants for keys and resources for default values
         float lastZoom = settings.getFloat("LastZoom", 10.0f);
@@ -113,10 +115,11 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
         float lastLat = settings.getFloat("LastLat", 48.0035f);
         float lastLng = settings.getFloat("LastLng", -122.228f);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(new LatLng(lastLat, lastLng)));
-
-        // Get the raw sensor data
-        mWindSensorAreaSelected = "Washington";
-        getRawSensorData(BASE_WIND_SENSORS_URL + "wa");
+        mWindSensorAreaSelected = settings.getString("LastRegion","Washington");
+        WindSensorRegion windSensorRegion = mWindSensorRegions.get(mWindSensorAreaSelected);
+        if (windSensorRegion != null) {
+            getRawSensorData(BASE_WIND_SENSORS_URL + windSensorRegion.getHtmlSuffix());
+        }
 
         // Add the geographic region markers.
         // These denote geographic areas where we have wind sensors.
@@ -222,11 +225,13 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
                         0, 0, new Paint());
 
                 // Add the wind sensor marker to the map
+                // Reposition the marker anchor and Info Window anchor
                 map.addMarker(new MarkerOptions()
                         .position(windSensor.getLatLng())
                         .title(windSensor.getTitle())
                         .snippet(windSensor.getID())
                         .anchor(0.5f, 0.5f)
+                        .infoWindowAnchor(0.5f, 0.25f)
                         .icon(BitmapDescriptorFactory
                                 .fromBitmap(b)));
             }
@@ -253,7 +258,6 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
         }
 
         // Must be a wind sensor marker. So retrieve and display the wind graph.
-        // TODO
         return false; // Let the default behavior occur
     }
 
