@@ -38,7 +38,7 @@ import java.util.Map;
 
 /**
  * The interactive sensor map <code>Activity</code>.
- * This activity uses a Google Map to display wind sensors.
+ * This activity uses a Google Map to display wind sensors and wind sensor regions.
  */
 public class OmniMap extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
@@ -126,7 +126,7 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
         addMarkersForWindSensorRegions();
     }
 
-    /*
+    /**
      * Create the collection of WindSensorRegions
      */
     private void createWindSensorRegionCollection() {
@@ -134,7 +134,7 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
         WindSensorRegion.createWindSensorRegionsCollection(mWindSensorRegions);
     }
 
-    /*
+    /**
      * Add the markers for each WindSensorRegion
      */
     private void addMarkersForWindSensorRegions() {
@@ -184,7 +184,12 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
         return null;
     }
 
-    // Add wind sensor markers to the map
+    /**
+     * Add wind sensor markers to the map
+     * @param context
+     * @param map
+     * @param windSensorList
+     */
     static private void addMarkers(Context context, GoogleMap map, List<WindSensor> windSensorList) {
         if (windSensorList != null && !windSensorList.isEmpty()) {
             long startTime = System.nanoTime();
@@ -261,8 +266,10 @@ public class OmniMap extends FragmentActivity implements OnMapReadyCallback, Goo
         return false; // Let the default behavior occur
     }
 
-    // Parse the raw sensor data in the background
-    // TODO Consider using RxJava
+    /**
+     * Parse the raw sensor data in the background
+     * TODO Consider using RxJava
+     */
     private class ParseTask extends AsyncTask<String, Void, List<WindSensor>> {
         @Override
         protected List<WindSensor> doInBackground(String... html) {
