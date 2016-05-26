@@ -33,6 +33,7 @@ public class NOAA extends AppCompatActivity {
         WebSettings webSettings = myWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+        webSettings.setBuiltInZoomControls(true);  // Allows the user to zoom
         myWebView.setBackgroundColor(Color.parseColor("#699ccf"));
         NOAAWebViewClient client = new NOAAWebViewClient();
         myWebView.setWebViewClient(client);
