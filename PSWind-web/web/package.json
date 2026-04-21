@@ -1,0 +1,19 @@
+{
+  "name": "pswind-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@tmcw/togeojson": "^7.1.0",
+    "jszip": "^3.10.1",
+    "leaflet": "^1.9.4"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0"
+  }
+}

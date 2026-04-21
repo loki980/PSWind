@@ -1,0 +1,19 @@
+set shell := ["fish", "-c"]
+
+up: _install
+    #!/usr/bin/env fish
+    cd worker && npm run dev &
+    cd web && npm run dev
+
+down:
+    pkill -f "wrangler dev" || true
+    pkill -f "vite" || true
+
+_install:
+    #!/usr/bin/env fish
+    if not test -d web/node_modules
+        cd web && npm install
+    end
+    if not test -d worker/node_modules
+        cd worker && npm install
+    end

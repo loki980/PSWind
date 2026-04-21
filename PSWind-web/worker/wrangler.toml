@@ -1,0 +1,17 @@
+name = "pswind-api"
+main = "src/index.js"
+compatibility_date = "2025-04-01"
+
+# Run on the same hostname as the Pages site so /api/* lands here.
+# Replace `pswind.example.com` with the real Pages domain (or keep using
+# the default `<project>.pages.dev` + the Pages "Functions / Worker bindings"
+# route mapping in the dashboard).
+#
+# [[routes]]
+# pattern = "pswind.example.com/api/*"
+# zone_name = "example.com"
+
+# Secret: set via `wrangler secret put SYNOPTIC_API_KEY`
+# Public config you can change without a redeploy can live in [vars].
+[vars]
+DEFAULT_CACHE_TTL_SEC = "300"

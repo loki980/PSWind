@@ -1,0 +1,305 @@
+:root {
+  --bg: #699ccf;
+  --nav-bg: #0b3d5e;
+  --nav-fg: #eaf3fb;
+  --nav-active: #ffb74d;
+  color-scheme: light dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+body {
+  font:
+    14px/1.4 system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    sans-serif;
+  background: var(--bg);
+  color: #111;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+}
+
+#tabs {
+  display: flex;
+  background: var(--nav-bg);
+  color: var(--nav-fg);
+  padding-top: env(safe-area-inset-top);
+}
+
+#tabs button {
+  flex: 1;
+  background: transparent;
+  color: inherit;
+  border: 0;
+  padding: 12px 0;
+  font-size: 15px;
+  font-weight: 500;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+}
+
+#tabs button.active {
+  border-bottom-color: var(--nav-active);
+}
+
+main {
+  flex: 1;
+  position: relative;
+}
+
+.view {
+  position: absolute;
+  inset: 0;
+}
+
+.view[hidden] {
+  display: none;
+}
+
+#map {
+  width: 100%;
+  height: 100%;
+}
+
+#map-status {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms;
+  z-index: 500;
+}
+
+#map-status.visible {
+  opacity: 1;
+}
+
+#view-forecast {
+  overflow-y: auto;
+  padding: 16px;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+  background: #fafafa;
+}
+
+#forecast-content {
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+#forecast-content h2,
+#forecast-content .forecast-zone {
+  margin: 1.2em 0 0.2em;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a4a7a;
+  border-bottom: 1px solid #dde;
+  padding-bottom: 2px;
+}
+
+#forecast-content h3,
+#forecast-content .forecast-period {
+  margin: 0.8em 0 0.2em;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #444;
+}
+
+#forecast-content .forecast-zone-name {
+  font-style: italic;
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+#forecast-content .forecast-meta {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 12px;
+}
+
+#forecast-content p {
+  margin: 0.3em 0 0.6em;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+#forecast-content .forecast-error {
+  color: #c00;
+}
+
+/* Wind marker (original PSWind icons: rotated arrow + speed number overlay) */
+.wind-marker {
+  background: transparent;
+  border: 0;
+}
+
+.wm {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  pointer-events: auto;
+}
+
+.wm-arrow,
+.wm-num {
+  position: absolute;
+  inset: 0;
+  width: 48px;
+  height: 48px;
+  image-rendering: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.wm-arrow {
+  transform-origin: 50% 50%;
+  will-change: transform;
+}
+
+.wm-num {
+  pointer-events: none;
+}
+
+/* Kite-spot marker */
+.kite-spot {
+  background: transparent;
+  border: 0;
+}
+
+.kite-spot-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #ffb74d;
+  border: 2px solid #663c00;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+/* Hide broken Google My Maps photo embeds — KML URLs use an old format that 404s */
+.popup-meta img {
+  display: none;
+}
+
+/* TJ wxtofly loop */
+.tj-loop {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: #effffd;
+  color: #333;
+}
+
+.tj-loop-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.tj-stage {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #000;
+}
+
+.tj-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  background: #fff;
+}
+
+.tj-time {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.tj-controls {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+  background: #0b3d5e;
+  color: #eaf3fb;
+}
+
+.tj-play {
+  background: transparent;
+  border: 1px solid #eaf3fb;
+  color: inherit;
+  border-radius: 20px;
+  width: 40px;
+  height: 32px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.tj-scrub {
+  flex: 1;
+}
+
+.tj-counter {
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  opacity: 0.85;
+  min-width: 44px;
+  text-align: right;
+}
+
+/* Popup */
+.leaflet-popup-content {
+  margin: 10px 12px;
+  min-width: 160px;
+}
+
+.popup-title {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.popup-wind {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.popup-meta {
+  color: #666;
+  font-size: 12px;
+  margin-top: 4px;
+}

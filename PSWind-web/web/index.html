@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0b3d5e" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+    <title>PSWind</title>
+  </head>
+  <body>
+    <div id="app">
+      <nav id="tabs" aria-label="Views">
+        <button data-view="map" class="active">Map</button>
+        <button data-view="tj-seattle">TJ&nbsp;Seattle</button>
+        <button data-view="tj-nsound">TJ&nbsp;N.&nbsp;Sound</button>
+        <button data-view="forecast">Forecast</button>
+      </nav>
+      <main>
+        <section id="view-map" class="view active">
+          <div id="map"></div>
+          <div id="map-status" aria-live="polite"></div>
+        </section>
+        <section id="view-tj-seattle" class="view" hidden>
+          <div class="tj-loop" data-grid="d2"></div>
+        </section>
+        <section id="view-tj-nsound" class="view" hidden>
+          <div class="tj-loop" data-grid="w2"></div>
+        </section>
+        <section id="view-forecast" class="view" hidden>
+          <div id="forecast-content">Loading forecast…</div>
+        </section>
+      </main>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
