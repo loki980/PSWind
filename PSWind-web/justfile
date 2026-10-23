@@ -2,18 +2,70 @@ set shell := ["fish", "-c"]
 
 up: _install
     #!/usr/bin/env fish
-    cd worker && npm run dev &
-    cd web && npm run dev
+    function _pid_alive -a pidfile
+        test -f $pidfile; or return 1
+        set -l p (cat $pidfile)
+        test -n "$p"; or return 1
+        kill -0 $p 2>/dev/null; or return 1
+        ps -p $p -o args= 2>/dev/null | string match -q -r '(npm|wrangler|vite|node)'
+    end
+    mkdir -p .logs
+    set -l started
+    set -l already
+    for name in worker web
+        set -l pidfile .logs/$name.pid
+        if _pid_alive $pidfile
+            set -a already $name
+            continue
+        end
+        rm -f $pidfile
+        fish -c "cd $name; exec npm run dev </dev/null" > .logs/$name.log 2>&1 &
+        echo $last_pid > $pidfile
+        disown
+        set -a started $name
+    end
+    if test (count $already) -gt 0
+        echo "Already running: $already"
+    end
+    if test (count $started) -gt 0
+        echo "Started: $started (logs in .logs/)"
+    end
+    echo "  web:    http://localhost:5173"
+    echo "  worker: http://localhost:8787"
 
 down:
-    pkill -f "wrangler dev" || true
-    pkill -f "vite" || true
+    #!/usr/bin/env fish
+    function _pid_alive -a pidfile
+        test -f $pidfile; or return 1
+        set -l p (cat $pidfile)
+        test -n "$p"; or return 1
+        kill -0 $p 2>/dev/null; or return 1
+        ps -p $p -o args= 2>/dev/null | string match -q -r '(npm|wrangler|vite|node)'
+    end
+    set -l stopped
+    for name in worker web
+        set -l pidfile .logs/$name.pid
+        if _pid_alive $pidfile
+            set -l pid (cat $pidfile)
+            kill -TERM -- -$pid 2>/dev/null; or kill -TERM $pid 2>/dev/null
+            set -a stopped $name
+        end
+        rm -f $pidfile
+    end
+    if test (count $stopped) -eq 0
+        echo "Already stopped."
+    else
+        echo "Stopped: $stopped"
+    end
+
+logs:
+    tail -f .logs/web.log .logs/worker.log
 
 _install:
     #!/usr/bin/env fish
     if not test -d web/node_modules
-        cd web && npm install
+        fish -c 'cd web && npm install'
     end
     if not test -d worker/node_modules
-        cd worker && npm install
+        fish -c 'cd worker && npm install'
     end
